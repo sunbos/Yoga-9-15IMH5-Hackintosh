@@ -1,0 +1,10 @@
+G0: system timer : 4000.000us (10000000 ticks)
+P0-0-0: PCM playback 0-0-0 : SLAVE
+P0-0-1: PCM capture 0-0-1 : SLAVE
+P0-1-0: PCM playback 0-1-0 : SLAVE
+P0-1-1: PCM capture 0-1-1 : SLAVE
+P0-3-0: PCM playback 0-3-0 : SLAVE
+P0-4-0: PCM playback 0-4-0 : SLAVE
+P0-5-0: PCM playback 0-5-0 : SLAVE
+P0-6-1: PCM capture 0-6-1 : SLAVE
+P0-7-1: PCM capture 0-7-1 : SLAVE

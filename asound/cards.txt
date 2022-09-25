@@ -1,0 +1,2 @@
+ 0 [sofhdadsp      ]: sof-hda-dsp - sof-hda-dsp
+                      LENOVO-82DE-Yoga915IMH5-Corvette
