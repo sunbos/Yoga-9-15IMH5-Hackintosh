@@ -8,3 +8,5 @@
 ## 3.USBPort.kext 
 #### 可以使用直接使用的USB定制，无需修复USB供电
 #### 因为这台电脑需要仿冒EC，所以如果想要使用USBPort.kext的话，就需要ACPI添加SSDT-EC，Kernel添加USBPort.kext
+
+### 三种组合都是可以的看个人喜好
