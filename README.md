@@ -1,5 +1,5 @@
 ## Yoga-9-15IMH5-Hackintosh
-### 编辑最小Intel Wi-Fi驱动程序
+### 1.如何编辑最小Intel Wi-Fi驱动程序？
 #### 为了减少开机的启动时间，我们可能需要通过删除AirportItlwm.kext中的冗余固件来减小AirportItlwm.kext的大小。在本指南中，它将帮助您仅保留Intel WiFi卡使用的固件。
 ```shell
 git clone --depth=1 https://github.com/OpenIntelWireless/itlwm.git
