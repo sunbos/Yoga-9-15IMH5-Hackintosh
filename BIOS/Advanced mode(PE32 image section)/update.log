@@ -1,0 +1,173 @@
+Flash BIOS update - Flash from Operating System version for Yoga 9 15IMH5
+Version EPCN31WW
+
+Applicable OS Win10(64-bit), Win11(64-bit)
+
+Installation README
+Updated Date:2023-04-18
+This package updates the basic input/output system (BIOS) on Yoga 9 15IMH5
+
+BIOS, abbreviation of Basic Input/Output System, is integrated in ROM chip on main board, which contains the basic input/output program, system configuration information, system startup self-check and pre-setup programs. BIOS provides most basic low-level hardware operations; it is the connection between software and hardware, and interfacing window of hardware and operating system.
+
+Note: Make note of any settings you have changed in the BIOS Configuration Utility. These settings may have to be re-entered after updating the BIOS.
+
+Attention: Do not power off or restart your computer during the BIOS flashing process, which will cause serious damage and improper functioning of your computer.
+
+Print this file so that you can refer to it during the installation.
+
+Downloading the package
+=======================
+1. Click the file link to download the file from the web page.
+2. When prompted, select a drive and directory in which to save the downloaded file.
+
+Installing the package in Windows.
+======================
+Please follow following step to update BIOS in Windows:
+1. Please run winflash.bat 
+2. The system will restart automatically when the flash process is done
+
+Please follow following step to update BIOS in Shell:
+1. Please run BIOS.nsh
+2. The system will restart automatically when the flash process is done
+
+Updated Information:
+
+Latest Version BIOS fixed all merged issues from previous.
+
+Summary of changes
+==================
+General Information:
+EPCN31WW
+1. 2023 IPU2 security issue BIOS update:
+          - Enhancement to address security vulnerability CVE-2022-33894, CVE-2022-38087
+2. Per Lenovo's request, update touchpad _HID
+
+EPCN30WW
+1.  2023 IPU1 security issue BIOS update:
+          - LEN-99959 2023.1 IPU-BIOS Advisory.
+              Enhancement to address security vulnerability CVE-2022-33894, CVE-2022-30539, CVE-2022-32231, CVE-2022-26837, CVE-2022-30704, CVE-2021-0187.
+          - LEN-96378 Phoenix Security ID 004-030.
+
+EPCN29WW
+1. 2022 IPU3 security issue BIOS update:
+        - Enhancement to address security vulnerability CVE-2022-21198.
+
+EPCN28WW
+1.  Win11 SV2 support
+2.  2022 IPU1 security issue BIOS update
+        - LEN-77471 2022.1 IPU 鈥� INTEL-TA-00601: BIOS
+            Enhancement to address security vulnerability CVE-2021-0153, CVE-2021-0154, CVE-2021-0155, CVE-2021-0159,
+                                                      CVE-2021-0188, CVE-2021-0189, CVE-2021-0190, CVE-2021-33060, 
+                                                      CVE-2021-33103, CVE-2021-33122, CVE-2021-33123, CVE-2021-33124
+        - LEN-77469 2022.1 IPU - INTEL-TA-00614: Intel SGX
+            Enhancement to address security vulnerability CVE-2022-0005
+        - LEN-77468 2022.1 IPU - INTEL-TA-00615: Intel Processors MMIO Stale Data
+            Enhancement to address security vulnerability CVE-2022-21123, CVE-2022-21125, CVE-2022-21127, CVE-2022-2116
+        - LEN-77466 2022.1 IPU - INTEL-TA-00617: Intel Processor Advisory
+            Enhancement to address security vulnerability CVE-2022-21151
+        - LEN-86144 ESET Vuln #3 - Buffer overflow in SystemBootManagerDxe
+            Enhancement to address security vulnerability LEN-86144
+
+EPCN27WW
+1. PCR: 2021 IPU2 security issue advisories with BIOS update: 
+        - LEN-68033 INTEL-TA-00532 2021.2 IPU - Intel Processor Breakpoint Control Flow Advisory
+        - Enhancement to address security vulnerability CVE-2021-0127
+2. PCR: 2021 IPU2 security issue advisories with BIOS update: 
+        - Add Phoenix patch and update RC 09.0.9E.10 (from SCT4.2.1.211).
+        - Enhancement to address security vulnerability CVE-2021-0091, CVE-2021-0103, CVE-2021-0107, CVE-2021-0111
+                                               CVE-2021-0114, CVE-2021-0115, CVE-2021-0116, CVE-2021-0117
+                                               CVE-2021-0118, CVE-2021-0119, CVE-2021-0124, CVE-2021-0125
+                                               CVE-2021-0156
+          Enhancement to address security vulnerability CVE-2021-0157, CVE-2021-0158
+          Enhancement to address security vulnerability CVE-2021-28216
+          Enhancement to address security vulnerability LEN-66615
+
+EPCN26WW
+1. Fix Windows October 2021 HLK issue: Hardware Security Testability Interface Test failed
+
+EPCN25WW
+1. Update KBC EPEC20WW
+	1) Update power table
+2. Fix Windows October 2021 HLK TPM 2.0 UEFI Preboot Interface Test failed
+3. Update sign.cfg tool version for new BIOS sign server
+
+EPCN24WW
+1. Update KBC EPEC19WW
+	1) Update power table
+	2) Modified clear crisis mode bit timing behavior
+2. Fix crisis function
+3. Mute beep sound in BIOS WU process
+4. Keep secure boot status after BIOS update with /cvar command
+5. PCR: 2021 IPU1 Security BIOS update, update MCU
+	- Enhancement to address security vulnerability CVE-2020-24511, CVE-2020-24512.
+      Enhancement to address security vulnerability CVE-2020-0589, CVE-2020-8700, CVE-2020-8670, CVE-2020-12357,
+                                                    CVE-2020-12358, CVE-2020-12359, CVE-2020-12360, CVE-2020-24486
+6. PCR: 2021 IPU1 Security MEFW update
+	- Enhancement to address security vulnerability CVE-2020-24508, CVE-2020-24509, CVE-2020-8704,
+                                                    CVE-2020-24507, CVE-2020-8703, CVE-2020-24506
+7. PCR: 2021 IPU1 Security BIOS update
+	 - Enhancement to address security vulnerability CVE-2019-14575
+
+EPCN23WW
+1. Update formal KBC EPEC18WW
+	1) Fix Modern standby LED behavior when platform reset is active.
+2. PCR: Intel 2020 IPU2 Security BIOS update
+	- Enhancement to address security vulnerability CVE-2020-10255
+3. PCR: Intel 2020 IPU2 Security BIOS update, Update MCU
+	- Enhancement to address security vulnerability CVE-2020-8696, CVE-2020-8698
+    - Enhancement to address security vulnerability CVE-2020-8694, CVE-2020-8695
+4. PCR: Intel 2020 IPU2 Security ME FW update
+	- Enhancement to address security vulnerability CVE-2020-8752, CVE-2020-8753, CVE-2020-8745,
+      CVE-2020-8750, CVE-2020-8757, CVE-2020-8756, CVE-2020-8760, CVE-2020-8744, CVE-2020-8751,
+      CVE-2020-8754, CVE-2020-8761, CVE-2020-8747, CVE-2020-8755, CVE-2020-8746, CVE-2020-8749,
+      CVE-2020-8705, CVE-2020-12303, CVE-2020-12304, CVE-2020-12297
+5. System cannot boot to setup menu/boot menu via Novo menu options after G3 state resume
+
+EPCN22WW
+1. Update formal KBC EPEC17WW
+	1) No change multi-mode rotate when ISH sensor report 0
+	2) Modified modern standby behavior: Add Bios notify screen on/off timing
+2. LC40 DOA issue: system overheat in S0i3
+
+EPCN21WW
+1. Top Hat PCR requirement
+	1) Add SMBIOS Type 11 country code string
+	2) Set GPU BAR0 MMIO HW acceleration bit to disable H.264
+
+EPCN20WW
+1. Revert NV solutions for LENOVO TOP HAT projecte
+
+EPCN19WW
+1. Update formal KBC EPEC16WW
+
+EPCN18WW
+1. Remove "Press a key to continue" message in ME WU
+2. Implement ISH FW and PDT update function for Smart Motion Alert function (but not ready to enable it)
+3. LENOVO TOP HAT project
+	1)Add SMBIOS Type 11 country code structure
+	2)Set GPU BAR0 MMIO HW acceleration bit to disable H.264
+
+EPCN17WW
+1. Update formal KBC EPEC15WW
+	1) Address France keyboard ITS4.0 hotkey
+	2) Update thermal table for tuning
+	3) Update power table setting
+2. Update DPTF data vault for I9 CPU
+3. Enable CPU Energy Efficient Turbo by EE's request (requested by Lenovo and EE Leon Kuo)
+
+Trademarks
+==========
+IdeaPad and IdeaCentre are registered trademarks of Lenovo.
+
+Microsoft and Windows are trademarks of Microsoft Corporation in 
+the United States, other countries, or both. Other company, product, 
+and service names may be trademarks or service marks of others.
+
+THIS DOCUMENT IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.  
+WE DISCLAIM ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, 
+INCLUDING WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF FITNESS 
+FOR A PARTICULAR PURPOSE AND MERCHANTABILITY WITH RESPECT TO THE 
+INFORMATION IN THIS DOCUMENT.  BY FURNISHING THIS DOCUMENT, WEGRANT 
+NO LICENSES TO ANY PATENTS OR COPYRIGHTS.
+
+Copyright (c) Lenovo 2016, all rights reserved
