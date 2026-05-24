@@ -17,6 +17,7 @@ on:
 env:
   CONFIG_PATH: config/device-config.json
   SHA_PATH: last-build-sha.json
+  PROJECT_TYPE: KEXT
 
 jobs:
   check-updates:
@@ -78,6 +79,10 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
 
+      - name: CI Bootstrap
+        run: |
+          src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
+
       - name: Build Lilu
         run: |
           cd IntelBluetoothFirmware/Lilu
@@ -114,6 +119,10 @@ jobs:
           cd AppleALC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
+
+      - name: CI Bootstrap
+        run: |
+          src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
 
       - name: Build Lilu
         run: |
