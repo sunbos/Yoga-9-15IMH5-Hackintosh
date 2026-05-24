@@ -137,7 +137,18 @@ jobs:
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
           cd YogaSMC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/hieplpvip/AsusSMC/master/Scripts/bootstrap.sh) && eval "$src" || exit 1
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          cd Lilu
+          ln -s ../MacKernelSDK MacKernelSDK
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
+          cd ..
+          git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
+          cd VirtualSMC
+          ln -s ../MacKernelSDK MacKernelSDK
+          ln -s ../Lilu.kext Lilu.kext
+          xcodebuild -target VirtualSMC -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/VirtualSMC.kext ../
 
       - name: Build & minimize YogaSMC
         env:
