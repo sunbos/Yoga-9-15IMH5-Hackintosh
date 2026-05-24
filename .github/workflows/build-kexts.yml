@@ -84,7 +84,6 @@ jobs:
           cp -R build/Debug/Lilu.kext ../
           cd ../Lilu.kext
           rm -rf Contents/Resources/Headers
-          strip -S -x Contents/MacOS/Lilu
 
       - name: Build & minimize IntelBT
         env:
@@ -117,7 +116,6 @@ jobs:
           cp -R build/Debug/Lilu.kext ../
           cd ../Lilu.kext
           rm -rf Contents/Resources/Headers
-          strip -S -x Contents/MacOS/Lilu
 
       - name: Build & minimize AppleALC
         env:
