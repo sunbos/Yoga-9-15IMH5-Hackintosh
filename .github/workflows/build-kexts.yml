@@ -82,8 +82,6 @@ jobs:
           ln -s ../MacKernelSDK MacKernelSDK
           xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           cp -R build/Debug/Lilu.kext ../
-          cd ../Lilu.kext
-          rm -rf Contents/Resources/Headers
 
       - name: Build & minimize IntelBT
         env:
@@ -114,8 +112,6 @@ jobs:
           ln -s ../MacKernelSDK MacKernelSDK
           xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           cp -R build/Debug/Lilu.kext ../
-          cd ../Lilu.kext
-          rm -rf Contents/Resources/Headers
 
       - name: Build & minimize AppleALC
         env:
