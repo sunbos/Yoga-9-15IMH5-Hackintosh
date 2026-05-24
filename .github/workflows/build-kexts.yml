@@ -44,7 +44,7 @@ jobs:
   build-wifi:
     needs: check-updates
     if: needs.check-updates.outputs.needs_build == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -68,7 +68,7 @@ jobs:
   build-bt:
     needs: check-updates
     if: needs.check-updates.outputs.needs_build == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -111,7 +111,7 @@ jobs:
   build-alc:
     needs: check-updates
     if: needs.check-updates.outputs.needs_build == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
