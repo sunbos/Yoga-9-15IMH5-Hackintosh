@@ -80,6 +80,8 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
 
       - name: CI Bootstrap
+        env:
+          JOB_TYPE: BUILD
         run: |
           src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
 
@@ -121,6 +123,8 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
 
       - name: CI Bootstrap
+        env:
+          JOB_TYPE: BUILD
         run: |
           src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
 
