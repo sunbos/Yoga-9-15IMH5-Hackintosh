@@ -63,11 +63,14 @@ def build(source_dir, sdk="macosx"):
         "-target", "AppleALC", "-configuration", "Release",
         "-sdk", sdk,
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
+        "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
     print(f"Building: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"Build FAILED:\n{result.stderr[-2000:]}")
+        print(f"Build FAILED:")
+        print(result.stdout[-3000:] if result.stdout else "")
+        print(result.stderr[-3000:] if result.stderr else "")
         sys.exit(1)
     print("Build succeeded")
 
