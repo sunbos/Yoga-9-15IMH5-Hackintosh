@@ -38,7 +38,7 @@ def build(source_dir, target):
     cmd = [
         "xcodebuild", "-project", "IntelBluetoothFirmware.xcodeproj",
         "-target", target, "-configuration", "Release",
-        "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
+        "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
     print(f"Building {target}: {' '.join(cmd)}")
