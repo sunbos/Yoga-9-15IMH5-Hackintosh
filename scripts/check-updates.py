@@ -31,6 +31,23 @@ def main():
         print("force_build=true, skipping update check")
         with open(os.environ["GITHUB_OUTPUT"], "a") as out:
             out.write("needs_build=true\n")
+        repos_to_check = {
+            "itlwm": config["upstream_repos"]["itlwm"],
+            "intelbt": config["upstream_repos"]["intelbt"],
+            "applealc": config["upstream_repos"]["applealc"],
+            "lilu": config["upstream_repos"]["lilu"],
+        }
+        current_sha = {}
+        for name, repo in repos_to_check.items():
+            try:
+                sha = get_latest_sha(repo)
+                current_sha[name] = sha
+                print(f"{name}: current {sha[:8]}")
+            except Exception as e:
+                print(f"{name}: error - {e}")
+        current_sha_path = os.environ.get("CURRENT_SHA_PATH", "/tmp/current-sha.json")
+        with open(current_sha_path, "w") as f:
+            json.dump(current_sha, f, indent=2)
         return
 
     repos_to_check = {

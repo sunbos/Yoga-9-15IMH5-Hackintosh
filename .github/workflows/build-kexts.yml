@@ -75,7 +75,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
           cd IntelBluetoothFirmware && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git Lilu.kext
 
       - name: Build & minimize IntelBT
         env:
@@ -100,7 +100,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
           cd AppleALC && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git Lilu.kext
 
       - name: Build & minimize AppleALC
         env:
