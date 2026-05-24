@@ -27,11 +27,10 @@ def clean_cache(source_dir):
                 shutil.rmtree(os.path.join(derived_data, d))
                 print(f"Removed DerivedData: {d}")
 
-def build(source_dir, target, sdk="macosx"):
+def build(source_dir, target):
     cmd = [
         "xcodebuild", "-project", "itlwm.xcodeproj",
         "-target", target, "-configuration", "Release",
-        "-sdk", sdk,
         "MACOSX_DEPLOYMENT_TARGET=10.15",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
     ]

@@ -57,11 +57,10 @@ def minimize_pinconfigs(pinconfigs_path, codec, keep_layouts):
     with open(info_path, "wb") as f:
         plistlib.dump(plist, f)
 
-def build(source_dir, sdk="macosx"):
+def build(source_dir):
     cmd = [
         "xcodebuild", "-project", "AppleALC.xcodeproj",
         "-target", "AppleALC", "-configuration", "Release",
-        "-sdk", sdk,
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]

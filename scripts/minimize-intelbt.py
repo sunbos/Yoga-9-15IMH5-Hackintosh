@@ -34,11 +34,10 @@ def apply_patches(source_dir, patches):
             sys.exit(1)
         print(f"Applied patch: {patch_file}")
 
-def build(source_dir, target, sdk="macosx"):
+def build(source_dir, target):
     cmd = [
         "xcodebuild", "-project", "IntelBluetoothFirmware.xcodeproj",
         "-target", target, "-configuration", "Release",
-        "-sdk", sdk,
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
