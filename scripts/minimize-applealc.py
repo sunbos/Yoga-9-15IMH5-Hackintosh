@@ -67,13 +67,25 @@ def strip_binary(kext_path):
         else:
             print(f"Strip warning: {result.stderr.strip()}")
 
+def prune_source_resources(source_dir, codec):
+    resources_dir = os.path.join(source_dir, "Resources")
+    if not os.path.exists(resources_dir):
+        print("No Resources directory found in source")
+        return
+    removed = 0
+    for item in os.listdir(resources_dir):
+        item_path = os.path.join(resources_dir, item)
+        if os.path.isdir(item_path) and item != codec and item != "PinConfigs.kext":
+            shutil.rmtree(item_path)
+            removed += 1
+    print(f"Pruned {removed} codec resource dirs from source (kept {codec} + PinConfigs.kext)")
+
 def build(source_dir):
     cmd = [
         "xcodebuild", "-project", "AppleALC.xcodeproj",
         "-target", "AppleALC", "-configuration", "Release",
         "-arch", "x86_64",
         "MACOSX_DEPLOYMENT_TARGET=10.13",
-        "DEAD_CODE_STRIPPING=YES",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
@@ -98,6 +110,7 @@ def main():
     codec = audio_config["codec"]
     keep_layouts = audio_config["keep_layouts"]
 
+    prune_source_resources(source_dir, codec)
     build(source_dir)
 
     kext_path = os.path.join(source_dir, "build", "Release", "AppleALC.kext")
