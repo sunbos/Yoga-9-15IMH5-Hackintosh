@@ -1,0 +1,206 @@
+name: Build Yoga 9 15IMH5 Kexts
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force build even if no updates'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+env:
+  CONFIG_PATH: config/device-config.json
+  SHA_PATH: last-build-sha.json
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    outputs:
+      needs_build: ${{ steps.check.outputs.needs_build }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for updates
+        id: check
+        env:
+          FORCE_BUILD: ${{ github.event.inputs.force_build }}
+          GITHUB_OUTPUT: ${{ github.output }}
+          CURRENT_SHA_PATH: /tmp/current-sha.json
+        run: python3 scripts/check-updates.py
+
+      - name: Upload current SHA
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-sha
+          path: /tmp/current-sha.json
+
+  build-wifi:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone itlwm
+        run: |
+          git clone --depth 1 https://github.com/OpenIntelWireless/itlwm.git
+          cd itlwm && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+
+      - name: Build & minimize AirportItlwm
+        env:
+          SOURCE_DIR: itlwm
+          OUTPUT_DIR: build-output
+        run: python3 scripts/minimize-airportitlwm.py
+
+      - name: Upload AirportItlwm
+        uses: actions/upload-artifact@v4
+        with:
+          name: airportitlwm
+          path: build-output/AirportItlwm.kext
+
+  build-bt:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone IntelBluetoothFirmware (upstream)
+        run: |
+          git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
+          cd IntelBluetoothFirmware && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+
+      - name: Build & minimize IntelBT
+        env:
+          SOURCE_DIR: IntelBluetoothFirmware
+          OUTPUT_DIR: build-output
+        run: python3 scripts/minimize-intelbt.py
+
+      - name: Upload IntelBT
+        uses: actions/upload-artifact@v4
+        with:
+          name: intelbt
+          path: build-output/
+
+  build-alc:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone AppleALC
+        run: |
+          git clone --depth 1 https://github.com/acidanthera/AppleALC.git
+          cd AppleALC && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+
+      - name: Build & minimize AppleALC
+        env:
+          SOURCE_DIR: AppleALC
+          OUTPUT_DIR: build-output
+        run: python3 scripts/minimize-applealc.py
+
+      - name: Upload AppleALC
+        uses: actions/upload-artifact@v4
+        with:
+          name: applealc
+          path: build-output/AppleALC.kext
+
+  download-prebuilt:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download prebuilt kexts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/download-prebuilt.py
+
+      - name: Upload prebuilt
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt
+          path: build-output/
+
+  release:
+    needs: [build-wifi, build-bt, build-alc, download-prebuilt]
+    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.download-prebuilt.result != 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Organize kexts
+        run: |
+          mkdir -p release/Kexts
+          cp -r all-artifacts/airportitlwm/AirportItlwm.kext release/Kexts/ 2>/dev/null || true
+          cp -r all-artifacts/intelbt/IntelBluetoothFirmware.kext release/Kexts/ 2>/dev/null || true
+          cp -r all-artifacts/intelbt/IntelBTPatcher.kext release/Kexts/ 2>/dev/null || true
+          cp -r all-artifacts/applealc/AppleALC.kext release/Kexts/ 2>/dev/null || true
+          cp -r all-artifacts/prebuilt/*.kext release/Kexts/ 2>/dev/null || true
+          ls -la release/Kexts/
+
+      - name: Create archives
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          cd release
+          zip -r "../Yoga-9-15IMH5-Kexts-${DATE}.zip" Kexts/
+          cd Kexts
+          zip -r "../../AirportItlwm-${DATE}.zip" AirportItlwm.kext
+          zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext BlueToolFixup.kext 2>/dev/null || zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext
+          zip -r "../../AppleALC-${DATE}.zip" AppleALC.kext
+
+      - name: Update last-build-sha.json
+        uses: actions/download-artifact@v4
+        with:
+          name: current-sha
+          path: /tmp/
+
+      - name: Commit updated SHA
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          cp /tmp/current-sha.json last-build-sha.json
+          python3 -c "
+          import json
+          with open('last-build-sha.json') as f: d = json.load(f)
+          d['build_date'] = '${DATE}'
+          with open('last-build-sha.json', 'w') as f: json.dump(d, f, indent=2)
+          "
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add last-build-sha.json
+          git diff --cached --quiet || git commit -m "Update last-build-sha for ${DATE}"
+          git push
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kexts-${{ github.run_number }}
+          name: "Yoga 9 15IMH5 Kexts Build (${{ github.event.repository.updated_at }})"
+          body: |
+            Automated kext build for Yoga 9 15IMH5 (Lenovo Yoga 9 15IMH5, i9-10980HK)
+
+            **Built from upstream master branches:**
+            - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
+            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + Tahoe/BLE patches
+            - IntelBTPatcher: with Tahoe compat + BLE fix patches
+            - AppleALC: minimized (codec=ALC298, layouts=3,98)
+            - All other kexts: latest upstream releases
+          files: |
+            Yoga-9-15IMH5-Kexts-*.zip
+            AirportItlwm-*.zip
+            IntelBT-*.zip
+            AppleALC-*.zip

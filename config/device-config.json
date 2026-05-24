@@ -1,0 +1,54 @@
+{
+  "device": "Yoga-9-15IMH5",
+  "wifi": {
+    "pci_id": "0x06F08086",
+    "firmware": "iwlwifi-QuZ-a0-hr-b0-68.ucode",
+    "build_target": "AirportItlwm-Ventura"
+  },
+  "bluetooth": {
+    "usb_id_product": 38,
+    "usb_id_vendor": 32903,
+    "personality_suffix": "0026",
+    "firmware_prefix": "ibt-18-",
+    "hw_variant": "0x12",
+    "upstream_repo": "OpenIntelWireless/IntelBluetoothFirmware",
+    "patches": [
+      "patches/intelbt/0001-IntelBTPatcher-Tahoe-compat.patch",
+      "patches/intelbt/0002-IntelBTPatcher-Fix-BLE-devices.patch"
+    ]
+  },
+  "audio": {
+    "codec": "ALC298",
+    "layout_id": 98,
+    "keep_layouts": [3, 98]
+  },
+  "upstream_repos": {
+    "itlwm": "OpenIntelWireless/itlwm",
+    "intelbt": "OpenIntelWireless/IntelBluetoothFirmware",
+    "applealc": "acidanthera/AppleALC",
+    "lilu": "acidanthera/Lilu",
+    "whatevergreen": "acidanthera/WhateverGreen",
+    "virtualsmc": "acidanthera/VirtualSMC",
+    "restrictevents": "acidanthera/RestrictEvents",
+    "brcmpatchram": "acidanthera/BrcmPatchRAM",
+    "nvmefix": "acidanthera/NVMeFix",
+    "amfipass": "dhinakg/AMFIPass",
+    "ecenabler": "1Revenger1/ECEnabler",
+    "voodoops2": "acidanthera/VoodooPS2",
+    "voodooi2c": "VoodooI2C/VoodooI2C",
+    "voodooi2chid": "VoodooI2C/VoodooI2CHID"
+  },
+  "download_repos": {
+    "lilu": {"repo": "acidanthera/Lilu", "kexts": ["Lilu.kext"]},
+    "whatevergreen": {"repo": "acidanthera/WhateverGreen", "kexts": ["WhateverGreen.kext"]},
+    "restrictevents": {"repo": "acidanthera/RestrictEvents", "kexts": ["RestrictEvents.kext"]},
+    "virtualsmc": {"repo": "acidanthera/VirtualSMC", "kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext", "SMCLightSensor.kext"]},
+    "nvmefix": {"repo": "acidanthera/NVMeFix", "kexts": ["NVMeFix.kext"]},
+    "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
+    "voodoops2": {"repo": "acidanthera/VoodooPS2", "kexts": ["VoodooPS2Controller.kext"]},
+    "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext"]},
+    "voodooi2chid": {"repo": "VoodooI2C/VoodooI2CHID", "kexts": ["VoodooI2CHID.kext"]},
+    "amfipass": {"repo": "dhinakg/AMFIPass", "kexts": ["AMFIPass.kext"]},
+    "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]}
+  }
+}
