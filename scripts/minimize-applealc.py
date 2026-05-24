@@ -77,8 +77,10 @@ def build(source_dir):
     print(f"Building: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"Build FAILED:")
-        print(result.stdout[-3000:] if result.stdout else "")
+        print("Build FAILED:")
+        for line in result.stderr.splitlines():
+            if "error:" in line.lower() or "undefined" in line.lower() or "ld:" in line.lower():
+                print(f"  {line}")
         print(result.stderr[-3000:] if result.stderr else "")
         sys.exit(1)
     print("Build succeeded")

@@ -34,21 +34,23 @@ def apply_patches(source_dir, patches):
             sys.exit(1)
         print(f"Applied patch: {patch_file}")
 
-def build(source_dir, target):
+def build_all(source_dir):
     cmd = [
         "xcodebuild", "-project", "IntelBluetoothFirmware.xcodeproj",
-        "-target", target, "-configuration", "Release",
+        "-alltargets", "-configuration", "Release",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
-    print(f"Building {target}: {' '.join(cmd)}")
+    print(f"Building all targets: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"Build {target} FAILED:")
-        print(result.stdout[-3000:] if result.stdout else "")
+        print("Build FAILED:")
+        for line in result.stderr.splitlines():
+            if "error:" in line.lower() or "undefined" in line.lower() or "ld:" in line.lower():
+                print(f"  {line}")
         print(result.stderr[-3000:] if result.stderr else "")
         sys.exit(1)
-    print(f"Build {target} succeeded")
+    print("Build succeeded")
 
 def minimize_plist(kext_path, keep_personalities):
     info_path = os.path.join(kext_path, "Contents", "Info.plist")
@@ -98,8 +100,9 @@ def main():
         ("IntelBTPatcher", "IntelBTPatcher.kext", ["IntelBTPatcher"]),
     ]
 
+    build_all(source_dir)
+
     for target, kext_name, keep_pers in targets:
-        build(source_dir, target)
         kext_path = os.path.join(source_dir, "build", "Release", kext_name)
         if not os.path.exists(kext_path):
             for root, dirs, files in os.walk(os.path.join(source_dir, "build")):
