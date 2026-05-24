@@ -77,9 +77,9 @@ jobs:
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
           cd IntelBluetoothFirmware
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_VER=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-          curl -sL "https://github.com/acidanthera/Lilu/releases/download/${LILU_VER}/Lilu-${LILU_VER}-DEBUG.zip" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip -d .
+          LILU_URL=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
+          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
+          unzip -o /tmp/Lilu-DEBUG.zip
 
       - name: Build & minimize IntelBT
         env:
@@ -105,9 +105,9 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
           cd AppleALC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_VER=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-          curl -sL "https://github.com/acidanthera/Lilu/releases/download/${LILU_VER}/Lilu-${LILU_VER}-DEBUG.zip" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip -d .
+          LILU_URL=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
+          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
+          unzip -o /tmp/Lilu-DEBUG.zip
 
       - name: Build & minimize AppleALC
         env:
@@ -133,11 +133,11 @@ jobs:
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
           cd YogaSMC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_VER=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-          curl -sL "https://github.com/acidanthera/Lilu/releases/download/${LILU_VER}/Lilu-${LILU_VER}-DEBUG.zip" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip -d .
-          VSMC_VER=$(curl -sL https://api.github.com/repos/acidanthera/VirtualSMC/releases/latest | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-          curl -sL "https://github.com/acidanthera/VirtualSMC/releases/download/${VSMC_VER}/VirtualSMC-${VSMC_VER}-DEBUG.zip" -o /tmp/VirtualSMC-DEBUG.zip
+          LILU_URL=$(curl -sL https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
+          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
+          unzip -o /tmp/Lilu-DEBUG.zip
+          VSMC_URL=$(curl -sL https://api.github.com/repos/acidanthera/VirtualSMC/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
+          curl -sL "$VSMC_URL" -o /tmp/VirtualSMC-DEBUG.zip
           unzip -o /tmp/VirtualSMC-DEBUG.zip -d /tmp/VirtualSMC-DEBUG
           cp -R /tmp/VirtualSMC-DEBUG/Kexts/VirtualSMC.kext .
 
