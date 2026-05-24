@@ -75,6 +75,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
           cd IntelBluetoothFirmware && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
 
       - name: Build & minimize IntelBT
         env:
