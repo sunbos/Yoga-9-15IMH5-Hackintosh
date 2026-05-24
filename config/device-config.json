@@ -19,7 +19,7 @@
   "audio": {
     "codec": "ALC298",
     "layout_id": 98,
-    "keep_layouts": [3, 98]
+    "keep_layouts": [98]
   },
   "upstream_repos": {
     "itlwm": "OpenIntelWireless/itlwm",

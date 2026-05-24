@@ -117,6 +117,7 @@ jobs:
         env:
           SOURCE_DIR: AppleALC
           OUTPUT_DIR: build-output
+          PATCHES_DIR: patches/applealc
         run: python3 scripts/minimize-applealc.py
 
       - name: Upload AppleALC

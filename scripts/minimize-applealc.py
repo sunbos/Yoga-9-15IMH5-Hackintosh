@@ -67,6 +67,30 @@ def strip_binary(kext_path):
         else:
             print(f"Strip warning: {result.stderr.strip()}")
 
+def inject_custom_layouts(source_dir, codec, keep_layouts):
+    patches_dir = os.environ.get("PATCHES_DIR", "patches/applealc")
+    if not os.path.isdir(patches_dir):
+        print(f"No custom layout patches dir: {patches_dir}")
+        return
+    codec_dir = os.path.join(source_dir, "Resources", codec)
+    if not os.path.exists(codec_dir):
+        os.makedirs(codec_dir, exist_ok=True)
+    injected = 0
+    for lid in keep_layouts:
+        for prefix in ("layout", "Platforms"):
+            src = os.path.join(patches_dir, f"{prefix}{lid}.xml")
+            dst = os.path.join(codec_dir, f"{prefix}{lid}.xml")
+            if not os.path.exists(src):
+                continue
+            if os.path.exists(dst):
+                print(f"Upstream already has {prefix}{lid}.xml, skipping custom injection")
+                continue
+            shutil.copy2(src, dst)
+            injected += 1
+            print(f"Injected custom {prefix}{lid}.xml")
+    if injected > 0:
+        print(f"Injected {injected} custom layout files")
+
 def prune_source_resources(source_dir, codec, keep_layouts):
     resources_dir = os.path.join(source_dir, "Resources")
     if not os.path.exists(resources_dir):
@@ -131,6 +155,7 @@ def main():
     keep_layouts = audio_config["keep_layouts"]
 
     prune_source_resources(source_dir, codec, keep_layouts)
+    inject_custom_layouts(source_dir, codec, keep_layouts)
     build(source_dir)
 
     kext_path = os.path.join(source_dir, "build", "Release", "AppleALC.kext")
