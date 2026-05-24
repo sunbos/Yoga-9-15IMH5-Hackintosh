@@ -74,8 +74,20 @@ jobs:
       - name: Clone IntelBluetoothFirmware (upstream)
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
-          cd IntelBluetoothFirmware && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git Lilu.kext
+          cd IntelBluetoothFirmware
+          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+
+      - name: Build Lilu
+        run: |
+          cd IntelBluetoothFirmware/Lilu
+          xcodebuild -project Lilu.xcodeproj -target Lilu -configuration Release -sdk macosx CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO
+          mkdir -p ../Lilu.kext/Contents/MacOS
+          cp build/Release/Lilu.kext/Contents/MacOS/Lilu ../Lilu.kext/Contents/MacOS/
+          cp build/Release/Lilu.kext/Contents/Info.plist ../Lilu.kext/Contents/
+          mkdir -p ../Lilu.kext/Contents/Resources/Library
+          cp Lilu/Library/plugin_start.cpp ../Lilu.kext/Contents/Resources/Library/
+          cp -r Lilu/Headers ../Lilu.kext/Contents/Resources/
 
       - name: Build & minimize IntelBT
         env:
@@ -99,8 +111,20 @@ jobs:
       - name: Clone AppleALC
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
-          cd AppleALC && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git Lilu.kext
+          cd AppleALC
+          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+
+      - name: Build Lilu
+        run: |
+          cd AppleALC/Lilu
+          xcodebuild -project Lilu.xcodeproj -target Lilu -configuration Release -sdk macosx CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO
+          mkdir -p ../Lilu.kext/Contents/MacOS
+          cp build/Release/Lilu.kext/Contents/MacOS/Lilu ../Lilu.kext/Contents/MacOS/
+          cp build/Release/Lilu.kext/Contents/Info.plist ../Lilu.kext/Contents/
+          mkdir -p ../Lilu.kext/Contents/Resources/Library
+          cp Lilu/Library/plugin_start.cpp ../Lilu.kext/Contents/Resources/Library/
+          cp -r Lilu/Headers ../Lilu.kext/Contents/Resources/
 
       - name: Build & minimize AppleALC
         env:
