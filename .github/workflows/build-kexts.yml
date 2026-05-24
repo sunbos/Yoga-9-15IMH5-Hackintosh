@@ -73,15 +73,15 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Clone IntelBluetoothFirmware
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
           cd IntelBluetoothFirmware
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_URL=$(curl -sL -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
-          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          cd Lilu
+          ln -s ../MacKernelSDK MacKernelSDK
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
 
       - name: Build & minimize IntelBT
         env:
@@ -103,15 +103,15 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Clone AppleALC
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
           cd AppleALC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_URL=$(curl -sL -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
-          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          cd Lilu
+          ln -s ../MacKernelSDK MacKernelSDK
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
 
       - name: Build & minimize AppleALC
         env:
@@ -133,19 +133,22 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Clone YogaSMC
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
           cd YogaSMC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          LILU_URL=$(curl -sL -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/acidanthera/Lilu/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
-          curl -sL "$LILU_URL" -o /tmp/Lilu-DEBUG.zip
-          unzip -o /tmp/Lilu-DEBUG.zip
-          VSMC_URL=$(curl -sL -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/acidanthera/VirtualSMC/releases/latest | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print([a['browser_download_url'] for a in assets if 'DEBUG' in a['name']][0])")
-          curl -sL "$VSMC_URL" -o /tmp/VirtualSMC-DEBUG.zip
-          unzip -o /tmp/VirtualSMC-DEBUG.zip -d /tmp/VirtualSMC-DEBUG
-          cp -R /tmp/VirtualSMC-DEBUG/Kexts/VirtualSMC.kext .
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          cd Lilu
+          ln -s ../MacKernelSDK MacKernelSDK
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
+          cd ..
+          git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
+          cd VirtualSMC
+          ln -s ../MacKernelSDK MacKernelSDK
+          ln -s ../Lilu.kext Lilu.kext
+          xcodebuild -target VirtualSMC -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/VirtualSMC.kext ../
 
       - name: Build & minimize YogaSMC
         env:

@@ -70,10 +70,12 @@ def strip_binary(kext_path):
 def build(source_dir):
     cmd = [
         "xcodebuild", "-project", "AppleALC.xcodeproj",
-        "-scheme", "AppleALC", "-configuration", "Release",
+        "-target", "AppleALC", "-configuration", "Release",
+        "-arch", "x86_64",
+        "MACOSX_DEPLOYMENT_TARGET=10.13",
+        "DEAD_CODE_STRIPPING=YES",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
-        "SYMROOT=$(SRCROOT)/build",
     ]
     print(f"Building: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
