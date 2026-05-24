@@ -15,7 +15,7 @@ def minimize_firmware(source_dir, firmware_name):
 
 def clean_cache(source_dir):
     for path in [
-        os.path.join(source_dir, "itlwm", "include", "FwBinary.cpp"),
+        os.path.join(source_dir, "include", "FwBinary.cpp"),
     ]:
         if os.path.exists(path):
             os.remove(path)
