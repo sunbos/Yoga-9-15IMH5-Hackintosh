@@ -80,8 +80,8 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
           cd Lilu
           ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Release/Lilu.kext ../
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
 
       - name: Build & minimize IntelBT
         env:
@@ -110,8 +110,8 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
           cd Lilu
           ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Release/Lilu.kext ../
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
 
       - name: Build & minimize AppleALC
         env:
@@ -140,15 +140,15 @@ jobs:
           git clone --depth 1 https://github.com/acidanthera/Lilu.git
           cd Lilu
           ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Release/Lilu.kext ../
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/Lilu.kext ../
           cd ..
           git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
           cd VirtualSMC
           ln -s ../MacKernelSDK MacKernelSDK
           ln -s ../Lilu.kext Lilu.kext
-          xcodebuild -target VirtualSMC -configuration Release -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Release/VirtualSMC.kext ../
+          xcodebuild -target VirtualSMC -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          cp -R build/Debug/VirtualSMC.kext ../
 
       - name: Build & minimize YogaSMC
         env:
