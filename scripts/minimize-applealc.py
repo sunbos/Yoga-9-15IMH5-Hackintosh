@@ -73,6 +73,7 @@ def build(source_dir):
         "-scheme", "AppleALC", "-configuration", "Release",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
+        "SYMROOT=$(SRCROOT)/build",
     ]
     print(f"Building: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
