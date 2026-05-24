@@ -1,18 +1,5 @@
-From 51cbe52c Mon Sep 17 00:00:00 2001
-From: lshbluesky <61459016+lshbluesky@users.noreply.github.com>
-Date: Sat, 22 Nov 2025 21:22:35 +0800
-Subject: [PATCH 2/2] IntelBTPatcher: Fix Bluetooth LE devices
-
-Patch provided by plooshi.
-
----
- IntelBTPatcher/IntelBTPatcher.cpp             |  83 +++++++++++++++++-
- IntelBTPatcher/IntelBTPatcher.hpp             |  16 +---
- .../IntelBluetoothOpsGen1.cpp                 |   2 +-
- 3 files changed, 85 insertions(+), 16 deletions(-)
-
 diff --git a/IntelBTPatcher/IntelBTPatcher.cpp b/IntelBTPatcher/IntelBTPatcher.cpp
-index 79cce98..284799c 100644
+index 79cce98..e8cd9c0 100644
 --- a/IntelBTPatcher/IntelBTPatcher.cpp
 +++ b/IntelBTPatcher/IntelBTPatcher.cpp
 @@ -66,6 +66,7 @@ static KernelPatcher::KextInfo IntelBTPatcher_IOUsbHostInfo {
@@ -56,7 +43,7 @@ index 79cce98..284799c 100644
          }
      }
  }
-@@ -153,10 +180,13 @@ StandardUSB::DeviceRequest randomAddressRequest;
+@@ -153,11 +180,13 @@ StandardUSB::DeviceRequest randomAddressRequest;
  const uint8_t randomAddressHci[9] = {0x05, 0x20, 0x06, 0x94, 0x50, 0x64, 0xD0, 0x78, 0x6B}; 
  IOBufferMemoryDescriptor *writeHCIDescriptor = nullptr;
  
@@ -69,12 +56,12 @@ index 79cce98..284799c 100644
 +#define HCI_OP_LE_SET_SCAN_PARAM        0x200B
 +#define HCI_OP_LE_SET_SCAN_ENABLE       0x200C
 +#define HCI_OP_LE_READ_REMOTE_FEATURES  0x2016
-+
-+int remoteReadSCount = 0;
  
++int remoteReadSCount = 0;
  IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider, StandardUSB::DeviceRequest &request, void *data, IOMemoryDescriptor *descriptor, unsigned int &length, IOUSBHostCompletion *completion, unsigned int timeout)
  {
-@@ -175,7 +205,7 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
+     HciCommandHdr *hdr = nullptr;
+@@ -175,7 +204,7 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
                  descriptor->complete(kIODirectionOut);
          }
          hdr = (HciCommandHdr *)hciBuf;
@@ -83,7 +70,7 @@ index 79cce98..284799c 100644
              if (!_randomAddressInit) {
                  randomAddressRequest.bmRequestType = makeDeviceRequestbmRequestType(kRequestDirectionOut, kRequestTypeClass, kRequestRecipientInterface);
                  randomAddressRequest.bRequest = 0xE0;
-@@ -184,18 +214,21 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
+@@ -184,18 +213,21 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
                  randomAddressRequest.wLength = 9;
                  length = 9;
                  if (writeHCIDescriptor == nullptr)
@@ -110,7 +97,7 @@ index 79cce98..284799c 100644
          }
      } else {
          hdr = (HciCommandHdr *)data;
-@@ -218,3 +251,83 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
+@@ -218,3 +250,83 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
      }
      return FunctionCast(newHostDeviceRequest, callbackIBTPatcher->oldHostDeviceRequest)(that, provider, request, data, descriptor, length, completion, timeout);
  }
@@ -247,6 +234,3 @@ index e7213c3..702b8b9 100644
          XYLog("Intel fw corrupted: invalid cmd read\n");
          return false;
      }
-
---
-2.39.5
