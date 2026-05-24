@@ -70,7 +70,7 @@ def strip_binary(kext_path):
 def build(source_dir):
     cmd = [
         "xcodebuild", "-project", "AppleALC.xcodeproj",
-        "-target", "AppleALC", "-configuration", "Release",
+        "-scheme", "AppleALC", "-configuration", "Release",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
