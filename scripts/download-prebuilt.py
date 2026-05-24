@@ -35,7 +35,7 @@ def download_and_extract(asset_url, asset_name, output_dir, kext_names):
 
     for root, dirs, files in os.walk(tmp_dir):
         for d in dirs:
-            if d.endswith(".kext") and any(d == k or d.startswith(k.replace(".kext", "")) for k in kext_names):
+            if d in kext_names:
                 src = os.path.join(root, d)
                 dst = os.path.join(output_dir, d)
                 if os.path.exists(dst):
@@ -44,6 +44,18 @@ def download_and_extract(asset_url, asset_name, output_dir, kext_names):
                 print(f"Extracted: {d}")
 
     shutil.rmtree(tmp_dir, ignore_errors=True)
+
+def select_best_asset(assets):
+    release_assets = [a for a in assets if "RELEASE" in a["name"].upper()]
+    if release_assets:
+        return release_assets[0]
+    zip_assets = [a for a in assets if a["name"].endswith(".zip")]
+    if zip_assets:
+        return zip_assets[0]
+    kext_assets = [a for a in assets if a["name"].endswith(".kext")]
+    if kext_assets:
+        return kext_assets[0]
+    return None
 
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
@@ -61,10 +73,11 @@ def main():
             release = get_latest_release(repo)
             tag = release["tag_name"]
             print(f"\n{name}: {repo} latest release = {tag}")
-            for asset in release.get("assets", []):
-                if asset["name"].endswith(".zip") or asset["name"].endswith(".kext"):
-                    download_and_extract(asset["browser_download_url"], asset["name"], output_dir, kexts)
-                    break
+            asset = select_best_asset(release.get("assets", []))
+            if asset:
+                download_and_extract(asset["browser_download_url"], asset["name"], output_dir, kexts)
+            else:
+                print(f"  No suitable asset found in release {tag}")
         except Exception as e:
             print(f"{name}: error - {e}")
 

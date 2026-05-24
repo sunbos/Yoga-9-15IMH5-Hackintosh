@@ -63,6 +63,18 @@ def minimize_plist(kext_path, keep_personalities):
         plistlib.dump(plist, f)
     subprocess.run(["plutil", "-lint", info_path], capture_output=True)
 
+def strip_binary(kext_path):
+    kext_name = os.path.basename(kext_path)
+    binary_name = kext_name.replace(".kext", "")
+    binary_path = os.path.join(kext_path, "Contents", "MacOS", binary_name)
+    if os.path.exists(binary_path):
+        result = subprocess.run(["strip", "-S", "-x", binary_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            size = os.path.getsize(binary_path)
+            print(f"Stripped {binary_name} binary: {size/1024:.0f}KB")
+        else:
+            print(f"Strip warning: {result.stderr.strip()}")
+
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
     with open(config_path) as f:
@@ -95,6 +107,7 @@ def main():
                     kext_path = os.path.join(root, kext_name)
                     break
         minimize_plist(kext_path, keep_pers)
+        strip_binary(kext_path)
         dest = os.path.join(output_dir, kext_name)
         if os.path.exists(dest):
             shutil.rmtree(dest)

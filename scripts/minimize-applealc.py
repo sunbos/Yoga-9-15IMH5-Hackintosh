@@ -57,6 +57,16 @@ def minimize_pinconfigs(pinconfigs_path, codec, keep_layouts):
     with open(info_path, "wb") as f:
         plistlib.dump(plist, f)
 
+def strip_binary(kext_path):
+    binary_path = os.path.join(kext_path, "Contents", "MacOS", "AppleALC")
+    if os.path.exists(binary_path):
+        result = subprocess.run(["strip", "-S", "-x", binary_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            size = os.path.getsize(binary_path)
+            print(f"Stripped AppleALC binary: {size/1024:.0f}KB")
+        else:
+            print(f"Strip warning: {result.stderr.strip()}")
+
 def build(source_dir):
     cmd = [
         "xcodebuild", "-project", "AppleALC.xcodeproj",
@@ -93,6 +103,7 @@ def main():
                 break
 
     minimize_resources(kext_path, codec, keep_layouts)
+    strip_binary(kext_path)
 
     output_dir = os.environ.get("OUTPUT_DIR", "build-output")
     os.makedirs(output_dir, exist_ok=True)
