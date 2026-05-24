@@ -36,6 +36,7 @@ def main():
             "intelbt": config["upstream_repos"]["intelbt"],
             "applealc": config["upstream_repos"]["applealc"],
             "lilu": config["upstream_repos"]["lilu"],
+            "yogasmc": config["upstream_repos"]["yogasmc"],
         }
         current_sha = {}
         for name, repo in repos_to_check.items():
@@ -55,6 +56,7 @@ def main():
         "intelbt": config["upstream_repos"]["intelbt"],
         "applealc": config["upstream_repos"]["applealc"],
         "lilu": config["upstream_repos"]["lilu"],
+        "yogasmc": config["upstream_repos"]["yogasmc"],
     }
 
     needs_build = False

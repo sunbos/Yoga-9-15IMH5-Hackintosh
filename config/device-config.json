@@ -31,11 +31,11 @@
     "restrictevents": "acidanthera/RestrictEvents",
     "brcmpatchram": "acidanthera/BrcmPatchRAM",
     "nvmefix": "acidanthera/NVMeFix",
-    "amfipass": "bluppus20/AMFIPass",
     "ecenabler": "1Revenger1/ECEnabler",
     "voodoops2": "acidanthera/VoodooPS2",
     "voodooi2c": "VoodooI2C/VoodooI2C",
-    "voodooi2chid": "VoodooI2C/VoodooI2CHID"
+    "voodooi2chid": "VoodooI2C/VoodooI2CHID",
+    "yogasmc": "zhen-zen/YogaSMC"
   },
   "download_repos": {
     "lilu": {"repo": "acidanthera/Lilu", "kexts": ["Lilu.kext"]},
@@ -46,7 +46,20 @@
     "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
     "voodoops2": {"repo": "acidanthera/VoodooPS2", "kexts": ["VoodooPS2Controller.kext"]},
     "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext", "VoodooI2CHID.kext"]},
-    "amfipass": {"repo": "bluppus20/AMFIPass", "kexts": ["AMFIPass.kext"]},
     "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]}
+  },
+  "raw_downloads": {
+    "amfipass": {
+      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Acidanthera/AMFIPass-v1.4.1-RELEASE.zip",
+      "kexts": ["AMFIPass.kext"]
+    },
+    "io80211familylegacy": {
+      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Wifi/IO80211FamilyLegacy-v1.0.0.zip",
+      "kexts": ["IO80211FamilyLegacy.kext"]
+    },
+    "ioskywalkfamily": {
+      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Wifi/IOSkywalkFamily-v1.2.0.zip",
+      "kexts": ["IOSkywalkFamily.kext"]
+    }
   }
 }

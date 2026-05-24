@@ -45,6 +45,33 @@ def download_and_extract(asset_url, asset_name, output_dir, kext_names):
 
     shutil.rmtree(tmp_dir, ignore_errors=True)
 
+
+def download_raw(raw_url, asset_name, output_dir, kext_names):
+    tmp_dir = tempfile.mkdtemp()
+    tmp_file = os.path.join(tmp_dir, asset_name)
+    print(f"Downloading raw: {asset_name}...")
+    urllib.request.urlretrieve(raw_url, tmp_file)
+
+    if asset_name.endswith(".zip"):
+        with zipfile.ZipFile(tmp_file) as zf:
+            zf.extractall(tmp_dir)
+    else:
+        print(f"  Unsupported format: {asset_name}")
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        return
+
+    for root, dirs, files in os.walk(tmp_dir):
+        for d in dirs:
+            if d in kext_names:
+                src = os.path.join(root, d)
+                dst = os.path.join(output_dir, d)
+                if os.path.exists(dst):
+                    shutil.rmtree(dst)
+                shutil.copytree(src, dst)
+                print(f"Extracted: {d}")
+
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+
 def select_best_asset(assets):
     release_assets = [a for a in assets if "RELEASE" in a["name"].upper()]
     if release_assets:
@@ -78,6 +105,17 @@ def main():
                 download_and_extract(asset["browser_download_url"], asset["name"], output_dir, kexts)
             else:
                 print(f"  No suitable asset found in release {tag}")
+        except Exception as e:
+            print(f"{name}: error - {e}")
+
+    raw_downloads = config.get("raw_downloads", {})
+    for name, info in raw_downloads.items():
+        raw_url = info["url"]
+        kexts = info["kexts"]
+        asset_name = raw_url.split("/")[-1]
+        try:
+            print(f"\n{name}: downloading from raw URL")
+            download_raw(raw_url, asset_name, output_dir, kexts)
         except Exception as e:
             print(f"{name}: error - {e}")
 

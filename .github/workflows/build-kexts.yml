@@ -125,6 +125,32 @@ jobs:
           name: applealc
           path: build-output/
 
+  build-yogasmc:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Clone YogaSMC
+        run: |
+          git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
+          cd YogaSMC
+          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          src=$(/usr/bin/curl -Lfs https://raw.githubusercontent.com/hieplpvip/AsusSMC/master/Scripts/bootstrap.sh) && eval "$src" || exit 1
+
+      - name: Build & minimize YogaSMC
+        env:
+          SOURCE_DIR: YogaSMC
+          OUTPUT_DIR: build-output
+        run: python3 scripts/minimize-yogasmc.py
+
+      - name: Upload YogaSMC
+        uses: actions/upload-artifact@v5
+        with:
+          name: yogasmc
+          path: build-output/
+
   download-prebuilt:
     needs: check-updates
     if: needs.check-updates.outputs.needs_build == 'true'
@@ -144,8 +170,8 @@ jobs:
           path: build-output/
 
   release:
-    needs: [build-wifi, build-bt, build-alc, download-prebuilt]
-    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.download-prebuilt.result != 'failure'
+    needs: [build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt]
+    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -210,6 +236,8 @@ jobs:
             - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + BLE fix patch
             - IntelBTPatcher: with BLE fix patch
             - AppleALC: minimized (codec=ALC298, layouts=3,98)
+            - YogaSMC: built from upstream master (v2.0.0)
+            - IO80211FamilyLegacy + IOSkywalkFamily: from OCLP payloads
             - All other kexts: latest upstream releases
           files: |
             Yoga-9-15IMH5-Kexts-*.zip
