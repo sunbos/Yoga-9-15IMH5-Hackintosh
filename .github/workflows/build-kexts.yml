@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: airportitlwm
-          path: build-output/AirportItlwm.kext
+          path: build-output/
 
   build-bt:
     needs: check-updates
@@ -122,7 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: applealc
-          path: build-output/AppleALC.kext
+          path: build-output/
 
   download-prebuilt:
     needs: check-updates
@@ -157,11 +157,7 @@ jobs:
       - name: Organize kexts
         run: |
           mkdir -p release/Kexts
-          cp -r all-artifacts/airportitlwm/AirportItlwm.kext release/Kexts/ 2>/dev/null || true
-          cp -r all-artifacts/intelbt/IntelBluetoothFirmware.kext release/Kexts/ 2>/dev/null || true
-          cp -r all-artifacts/intelbt/IntelBTPatcher.kext release/Kexts/ 2>/dev/null || true
-          cp -r all-artifacts/applealc/AppleALC.kext release/Kexts/ 2>/dev/null || true
-          cp -r all-artifacts/prebuilt/*.kext release/Kexts/ 2>/dev/null || true
+          find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
           ls -la release/Kexts/
 
       - name: Create archives
@@ -170,9 +166,13 @@ jobs:
           cd release
           zip -r "../Yoga-9-15IMH5-Kexts-${DATE}.zip" Kexts/
           cd Kexts
-          zip -r "../../AirportItlwm-${DATE}.zip" AirportItlwm.kext
-          zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext BlueToolFixup.kext 2>/dev/null || zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext
-          zip -r "../../AppleALC-${DATE}.zip" AppleALC.kext
+          for kext in AirportItlwm.kext AppleALC.kext; do
+            [ -d "$kext" ] && zip -r "../../${kext%.kext}-${DATE}.zip" "$kext" || true
+          done
+          if [ -d IntelBluetoothFirmware.kext ] || [ -d IntelBTPatcher.kext ]; then
+            zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext BlueToolFixup.kext 2>/dev/null || \
+            zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext
+          fi
 
       - name: Update last-build-sha.json
         uses: actions/download-artifact@v4
