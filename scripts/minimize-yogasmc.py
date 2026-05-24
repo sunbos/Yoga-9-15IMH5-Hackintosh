@@ -26,7 +26,7 @@ def build(source_dir):
         "-project",
         "YogaSMC.xcodeproj",
         "-target",
-        "BuildAll",
+        "YogaSMC",
         "-configuration",
         "Release",
         "CODE_SIGN_IDENTITY=-",
