@@ -17,7 +17,6 @@ on:
 env:
   CONFIG_PATH: config/device-config.json
   SHA_PATH: last-build-sha.json
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   check-updates:
@@ -25,7 +24,7 @@ jobs:
     outputs:
       needs_build: ${{ steps.check.outputs.needs_build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Check for updates
         id: check
@@ -36,7 +35,7 @@ jobs:
         run: python3 scripts/check-updates.py
 
       - name: Upload current SHA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: current-sha
           path: /tmp/current-sha.json
@@ -46,7 +45,7 @@ jobs:
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Clone itlwm
         run: |
@@ -60,7 +59,7 @@ jobs:
         run: python3 scripts/minimize-airportitlwm.py
 
       - name: Upload AirportItlwm
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: airportitlwm
           path: build-output/
@@ -70,7 +69,7 @@ jobs:
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Clone IntelBluetoothFirmware
         run: |
@@ -90,7 +89,7 @@ jobs:
         run: python3 scripts/minimize-intelbt.py
 
       - name: Upload IntelBT
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: intelbt
           path: build-output/
@@ -100,7 +99,7 @@ jobs:
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Clone AppleALC
         run: |
@@ -120,7 +119,7 @@ jobs:
         run: python3 scripts/minimize-applealc.py
 
       - name: Upload AppleALC
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: applealc
           path: build-output/
@@ -130,7 +129,7 @@ jobs:
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download prebuilt kexts
         env:
@@ -138,7 +137,7 @@ jobs:
         run: python3 scripts/download-prebuilt.py
 
       - name: Upload prebuilt
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: prebuilt
           path: build-output/
@@ -148,10 +147,10 @@ jobs:
     if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.download-prebuilt.result != 'failure'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: all-artifacts
 
@@ -176,7 +175,7 @@ jobs:
           fi
 
       - name: Update last-build-sha.json
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: current-sha
           path: /tmp/
@@ -207,8 +206,8 @@ jobs:
 
             **Built from upstream master branches:**
             - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
-            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + Tahoe/BLE patches
-            - IntelBTPatcher: with Tahoe compat + BLE fix patches
+            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + BLE fix patch
+            - IntelBTPatcher: with BLE fix patch
             - AppleALC: minimized (codec=ALC298, layouts=3,98)
             - All other kexts: latest upstream releases
           files: |
