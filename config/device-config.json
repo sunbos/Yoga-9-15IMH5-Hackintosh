@@ -31,7 +31,7 @@
     "restrictevents": "acidanthera/RestrictEvents",
     "brcmpatchram": "acidanthera/BrcmPatchRAM",
     "nvmefix": "acidanthera/NVMeFix",
-    "amfipass": "dhinakg/AMFIPass",
+    "amfipass": "bluppus20/AMFIPass",
     "ecenabler": "1Revenger1/ECEnabler",
     "voodoops2": "acidanthera/VoodooPS2",
     "voodooi2c": "VoodooI2C/VoodooI2C",
@@ -45,9 +45,8 @@
     "nvmefix": {"repo": "acidanthera/NVMeFix", "kexts": ["NVMeFix.kext"]},
     "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
     "voodoops2": {"repo": "acidanthera/VoodooPS2", "kexts": ["VoodooPS2Controller.kext"]},
-    "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext"]},
-    "voodooi2chid": {"repo": "VoodooI2C/VoodooI2CHID", "kexts": ["VoodooI2CHID.kext"]},
-    "amfipass": {"repo": "dhinakg/AMFIPass", "kexts": ["AMFIPass.kext"]},
+    "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext", "VoodooI2CHID.kext"]},
+    "amfipass": {"repo": "bluppus20/AMFIPass", "kexts": ["AMFIPass.kext"]},
     "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]}
   }
 }
