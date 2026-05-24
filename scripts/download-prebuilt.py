@@ -34,6 +34,7 @@ def download_and_extract(asset_url, asset_name, output_dir, kext_names):
         return
 
     for root, dirs, files in os.walk(tmp_dir):
+        dirs[:] = [d for d in dirs if d != "__MACOSX"]
         for d in dirs:
             if d in kext_names:
                 src = os.path.join(root, d)
@@ -61,6 +62,7 @@ def download_raw(raw_url, asset_name, output_dir, kext_names):
         return
 
     for root, dirs, files in os.walk(tmp_dir):
+        dirs[:] = [d for d in dirs if d != "__MACOSX"]
         for d in dirs:
             if d in kext_names:
                 src = os.path.join(root, d)
