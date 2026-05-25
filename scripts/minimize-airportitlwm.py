@@ -28,11 +28,17 @@ def clean_cache(source_dir):
                 print(f"Removed DerivedData: {d}")
 
 def build(source_dir, target):
+    subprocess.run(["xcodebuild", "clean", "-project", "itlwm.xcodeproj",
+                    "-target", target, "-configuration", "Release",
+                    "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
+                    "CODE_SIGNING_ALLOWED=NO"],
+                   cwd=source_dir, capture_output=True, text=True)
     cmd = [
         "xcodebuild", "-project", "itlwm.xcodeproj",
         "-target", target, "-configuration", "Release",
         "MACOSX_DEPLOYMENT_TARGET=10.15",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
+        "CODE_SIGNING_ALLOWED=NO",
     ]
     print(f"Building: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
