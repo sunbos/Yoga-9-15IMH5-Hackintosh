@@ -188,6 +188,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Get date
+        id: date
+        run: echo "date=$(date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
       - name: Download all artifacts
         uses: actions/download-artifact@v5
         with:
@@ -238,8 +242,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: kexts-${{ github.run_number }}
-          name: "Yoga 9 15IMH5 Kexts Build (${{ github.event.repository.updated_at }})"
+          tag_name: kexts-${{ steps.date.outputs.date }}.${{ github.run_number }}
+          name: "Yoga 9 15IMH5 Kexts Build (${{ steps.date.outputs.date }} #${{ github.run_number }})"
           body: |
             Automated kext build for Yoga 9 15IMH5 (Lenovo Yoga 9 15IMH5, i9-10980HK)
 
@@ -247,7 +251,7 @@ jobs:
             - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
             - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + BLE fix patch
             - IntelBTPatcher: with BLE fix patch
-            - AppleALC: minimized (codec=ALC298, layouts=3,98)
+            - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)
             - IO80211FamilyLegacy + IOSkywalkFamily: from OCLP payloads
             - All other kexts: latest upstream releases
