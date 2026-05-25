@@ -8,10 +8,15 @@ import sys
 
 def minimize_firmware(source_dir, firmware_name):
     fw_dir = os.path.join(source_dir, "itlwm", "firmware")
+    print(f"Firmware dir: {fw_dir} exists={os.path.exists(fw_dir)}")
+    if os.path.exists(fw_dir):
+        all_files = os.listdir(fw_dir)
+        print(f"Firmware files before: {len(all_files)} ({all_files[:5]}...)")
     for f in os.listdir(fw_dir):
         if f != firmware_name:
             os.remove(os.path.join(fw_dir, f))
-    print(f"Firmware minimized: kept only {firmware_name}")
+    remaining = os.listdir(fw_dir) if os.path.exists(fw_dir) else []
+    print(f"Firmware minimized: kept only {firmware_name}, remaining={remaining}")
 
 def clean_cache(source_dir):
     for path in [
@@ -46,6 +51,15 @@ def build(source_dir, target):
         print(f"Build FAILED:\n{result.stderr[-2000:]}")
         sys.exit(1)
     print("Build succeeded")
+
+    fw_binary = os.path.join(source_dir, "include", "FwBinary.cpp")
+    if os.path.exists(fw_binary):
+        with open(fw_binary) as f:
+            content = f.read()
+        fw_count = content.count("IWL_FW(")
+        print(f"FwBinary.cpp: {fw_count} firmware entries")
+    else:
+        print(f"FwBinary.cpp not found at {fw_binary}")
 
 def minimize_plist(kext_path, pci_id):
     info_path = os.path.join(kext_path, "Contents", "Info.plist")
