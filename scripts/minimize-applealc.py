@@ -108,9 +108,12 @@ def prune_source_resources(source_dir, codec, keep_layouts):
     if not os.path.exists(codec_dir):
         return
     layout_ids = set(str(l) for l in keep_layouts)
+    shared_platforms = {"PlatformsID.xml", "PlatformsM.xml"}
     xml_removed = 0
     for item in os.listdir(codec_dir):
         if not item.endswith(".xml"):
+            continue
+        if item in shared_platforms:
             continue
         name = item.replace(".xml", "")
         is_layout = name.startswith("layout")
