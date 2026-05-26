@@ -104,16 +104,24 @@ def prune_source_resources(source_dir, codec, keep_layouts):
             removed += 1
     print(f"Pruned {removed} codec resource dirs from source (kept {codec} + PinConfigs.kext)")
 
+    for cache_file in ("Resources.md5", "Resources.tmp.md5"):
+        cache_path = os.path.join(source_dir, cache_file)
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
+            print(f"Removed build cache: {cache_file}")
+
+    kern_res = os.path.join(source_dir, "AppleALC", "kern_resources.cpp")
+    if os.path.exists(kern_res):
+        os.remove(kern_res)
+        print("Removed kern_resources.cpp cache to force regeneration")
+
     codec_dir = os.path.join(resources_dir, codec)
     if not os.path.exists(codec_dir):
         return
     layout_ids = set(str(l) for l in keep_layouts)
-    shared_platforms = {"PlatformsID.xml", "PlatformsM.xml"}
     xml_removed = 0
-    for item in os.listdir(codec_dir):
+    for item in list(os.listdir(codec_dir)):
         if not item.endswith(".xml"):
-            continue
-        if item in shared_platforms:
             continue
         name = item.replace(".xml", "")
         is_layout = name.startswith("layout")
@@ -123,9 +131,53 @@ def prune_source_resources(source_dir, codec, keep_layouts):
         lid = name.replace("layout", "").replace("Platforms", "")
         if lid in layout_ids:
             continue
-        os.remove(os.path.join(codec_dir, item))
+        base = os.path.join(codec_dir, item)
+        os.remove(base)
         xml_removed += 1
+        for suffix in (".zlib", ".zlib.md5", ".md5"):
+            cache = base + suffix
+            if os.path.exists(cache):
+                os.remove(cache)
     print(f"Pruned {xml_removed} unneeded layout/Platforms XMLs from {codec} (kept layouts {keep_layouts})")
+
+def prune_codec_info_plist(source_dir, codec, keep_layouts):
+    info_path = os.path.join(source_dir, "Resources", codec, "Info.plist")
+    if not os.path.exists(info_path):
+        print(f"No Info.plist found at {info_path}")
+        return
+    with open(info_path, "rb") as f:
+        plist = plistlib.load(f)
+
+    files_dict = plist.get("Files", {})
+    keep_set = set(keep_layouts)
+
+    for key in ("Layouts", "Platforms"):
+        entries = files_dict.get(key, [])
+        original_count = len(entries)
+        existing_ids = {e.get("Id") for e in entries if isinstance(e, dict)}
+        kept = [e for e in entries if isinstance(e, dict) and e.get("Id") in keep_set]
+        added = 0
+        for lid in keep_layouts:
+            if lid not in existing_ids:
+                prefix = "layout" if key == "Layouts" else "Platforms"
+                kept.append({
+                    "Id": lid,
+                    "Path": f"{prefix}{lid}.xml.zlib",
+                })
+                added += 1
+                print(f"Added missing {key} entry for layout {lid}")
+        files_dict[key] = kept
+        removed = original_count - len([e for e in entries if isinstance(e, dict) and e.get("Id") in keep_set])
+        print(f"Info.plist {key}: {original_count} -> {len(kept)} (removed {removed}, added {added})")
+
+    pin_configs = plist.get("PinConfigurations")
+    if isinstance(pin_configs, list):
+        original_pc = len(pin_configs)
+        plist["PinConfigurations"] = [p for p in pin_configs if isinstance(p, dict) and p.get("LayoutID") in keep_set]
+        print(f"Info.plist PinConfigurations: {original_pc} -> {len(plist['PinConfigurations'])}")
+
+    with open(info_path, "wb") as f:
+        plistlib.dump(plist, f)
 
 def build(source_dir):
     cmd = [
@@ -159,6 +211,7 @@ def main():
 
     prune_source_resources(source_dir, codec, keep_layouts)
     inject_custom_layouts(source_dir, codec, keep_layouts)
+    prune_codec_info_plist(source_dir, codec, keep_layouts)
     build(source_dir)
 
     kext_path = os.path.join(source_dir, "build", "Release", "AppleALC.kext")
