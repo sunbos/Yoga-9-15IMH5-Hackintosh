@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import fnmatch
 import json
 import os
 import shutil
@@ -9,8 +10,7 @@ import zipfile
 
 GITHUB_API = "https://api.github.com/repos"
 
-def get_latest_release(repo):
-    url = f"{GITHUB_API}/{repo}/releases/latest"
+def _make_request(url):
     headers = {"User-Agent": "Yoga-9-15IMH5-Build"}
     token = os.environ.get("GH_TOKEN", "")
     if token:
@@ -18,6 +18,26 @@ def get_latest_release(repo):
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())
+
+def get_latest_release(repo):
+    url = f"{GITHUB_API}/{repo}/releases/latest"
+    return _make_request(url)
+
+def resolve_raw_download(info):
+    if "url" in info:
+        return info["url"]
+    repo = info["repo"]
+    path = info["path"]
+    pattern = info["pattern"]
+    url = f"{GITHUB_API}/{repo}/contents/{path}"
+    entries = _make_request(url)
+    matches = [e for e in entries if e.get("type") == "file" and fnmatch.fnmatch(e["name"], pattern)]
+    if not matches:
+        raise RuntimeError(f"No file matching '{pattern}' in {repo}/{path}")
+    matches.sort(key=lambda e: e["name"], reverse=True)
+    download_url = matches[0]["download_url"]
+    print(f"  Resolved {pattern} -> {matches[0]['name']}")
+    return download_url
 
 def download_and_extract(asset_url, asset_name, output_dir, kext_names):
     tmp_dir = tempfile.mkdtemp()
@@ -116,11 +136,11 @@ def main():
 
     raw_downloads = config.get("raw_downloads", {})
     for name, info in raw_downloads.items():
-        raw_url = info["url"]
         kexts = info["kexts"]
-        asset_name = raw_url.split("/")[-1]
         try:
-            print(f"\n{name}: downloading from raw URL")
+            raw_url = resolve_raw_download(info)
+            asset_name = raw_url.split("/")[-1]
+            print(f"\n{name}: downloading {asset_name}")
             download_raw(raw_url, asset_name, output_dir, kexts)
         except Exception as e:
             print(f"{name}: error - {e}")

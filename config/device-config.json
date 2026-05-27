@@ -50,15 +50,21 @@
   },
   "raw_downloads": {
     "amfipass": {
-      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Acidanthera/AMFIPass-v1.4.1-RELEASE.zip",
+      "repo": "dortania/OpenCore-Legacy-Patcher",
+      "path": "payloads/Kexts/Acidanthera",
+      "pattern": "AMFIPass-*-RELEASE.zip",
       "kexts": ["AMFIPass.kext"]
     },
     "io80211familylegacy": {
-      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Wifi/IO80211FamilyLegacy-v1.0.0.zip",
+      "repo": "dortania/OpenCore-Legacy-Patcher",
+      "path": "payloads/Kexts/Wifi",
+      "pattern": "IO80211FamilyLegacy-*.zip",
       "kexts": ["IO80211FamilyLegacy.kext"]
     },
     "ioskywalkfamily": {
-      "url": "https://raw.githubusercontent.com/dortania/OpenCore-Legacy-Patcher/main/payloads/Kexts/Wifi/IOSkywalkFamily-v1.2.0.zip",
+      "repo": "dortania/OpenCore-Legacy-Patcher",
+      "path": "payloads/Kexts/Wifi",
+      "pattern": "IOSkywalkFamily-*.zip",
       "kexts": ["IOSkywalkFamily.kext"]
     }
   }
