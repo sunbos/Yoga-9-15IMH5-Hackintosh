@@ -11,7 +11,11 @@ GITHUB_API = "https://api.github.com/repos"
 
 def get_latest_release(repo):
     url = f"{GITHUB_API}/{repo}/releases/latest"
-    req = urllib.request.Request(url, headers={"User-Agent": "Yoga-9-15IMH5-Build"})
+    headers = {"User-Agent": "Yoga-9-15IMH5-Build"}
+    token = os.environ.get("GH_TOKEN", "")
+    if token:
+        headers["Authorization"] = f"token {token}"
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())
 

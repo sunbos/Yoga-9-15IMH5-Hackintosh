@@ -31,7 +31,7 @@ jobs:
         id: check
         env:
           FORCE_BUILD: ${{ github.event.inputs.force_build }}
-          GITHUB_OUTPUT: ${{ github.output }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURRENT_SHA_PATH: /tmp/current-sha.json
         run: python3 scripts/check-updates.py
 
@@ -183,7 +183,7 @@ jobs:
 
   release:
     needs: [build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt]
-    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure'
+    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && (needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

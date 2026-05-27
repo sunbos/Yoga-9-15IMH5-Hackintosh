@@ -2,16 +2,31 @@
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 
 GITHUB_API = "https://api.github.com/repos"
 
-def get_latest_sha(repo):
-    url = f"{GITHUB_API}/{repo}/commits/master"
-    req = urllib.request.Request(url, headers={"User-Agent": "Yoga-9-15IMH5-Build"})
+def _make_request(url):
+    headers = {"User-Agent": "Yoga-9-15IMH5-Build"}
+    token = os.environ.get("GH_TOKEN", "")
+    if token:
+        headers["Authorization"] = f"token {token}"
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read())
-        return data["sha"]
+        return json.loads(resp.read())
+
+def get_latest_sha(repo):
+    for branch in ("master", "main"):
+        try:
+            url = f"{GITHUB_API}/{repo}/commits/{branch}"
+            data = _make_request(url)
+            return data["sha"]
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                continue
+            raise
+    raise RuntimeError(f"No master or main branch found for {repo}")
 
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
