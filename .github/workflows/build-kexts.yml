@@ -41,6 +41,27 @@ jobs:
           name: current-sha
           path: /tmp/current-sha.json
 
+  build-lilu:
+    needs: check-updates
+    if: needs.check-updates.outputs.needs_build == 'true'
+    runs-on: macos-15
+    steps:
+      - name: Clone Lilu + MacKernelSDK
+        run: |
+          git clone --depth 1 https://github.com/acidanthera/Lilu.git
+          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          cd Lilu
+          ln -s ../MacKernelSDK MacKernelSDK
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          mkdir -p /tmp/lilu-sdk
+          cp -R build/Debug/Lilu.kext /tmp/lilu-sdk/
+
+      - name: Upload Lilu SDK
+        uses: actions/upload-artifact@v5
+        with:
+          name: lilu-sdk
+          path: /tmp/lilu-sdk/
+
   build-wifi:
     needs: check-updates
     if: needs.check-updates.outputs.needs_build == 'true'
@@ -66,22 +87,24 @@ jobs:
           path: build-output/
 
   build-bt:
-    needs: check-updates
+    needs: [check-updates, build-lilu]
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - name: Download Lilu SDK
+        uses: actions/download-artifact@v5
+        with:
+          name: lilu-sdk
+          path: /tmp/lilu-sdk
 
       - name: Clone IntelBluetoothFirmware
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
           cd IntelBluetoothFirmware
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git
-          cd Lilu
-          ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Debug/Lilu.kext ../
+          cp -R /tmp/lilu-sdk/Lilu.kext .
 
       - name: Build & minimize IntelBT
         env:
@@ -96,22 +119,24 @@ jobs:
           path: build-output/
 
   build-alc:
-    needs: check-updates
+    needs: [check-updates, build-lilu]
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - name: Download Lilu SDK
+        uses: actions/download-artifact@v5
+        with:
+          name: lilu-sdk
+          path: /tmp/lilu-sdk
 
       - name: Clone AppleALC
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
           cd AppleALC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git
-          cd Lilu
-          ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Debug/Lilu.kext ../
+          cp -R /tmp/lilu-sdk/Lilu.kext .
 
       - name: Build & minimize AppleALC
         env:
@@ -127,23 +152,24 @@ jobs:
           path: build-output/
 
   build-yogasmc:
-    needs: check-updates
+    needs: [check-updates, build-lilu]
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - name: Download Lilu SDK
+        uses: actions/download-artifact@v5
+        with:
+          name: lilu-sdk
+          path: /tmp/lilu-sdk
 
       - name: Clone YogaSMC
         run: |
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
           cd YogaSMC
           git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          git clone --depth 1 https://github.com/acidanthera/Lilu.git
-          cd Lilu
-          ln -s ../MacKernelSDK MacKernelSDK
-          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cp -R build/Debug/Lilu.kext ../
-          cd ..
+          cp -R /tmp/lilu-sdk/Lilu.kext .
           git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
           cd VirtualSMC
           ln -s ../MacKernelSDK MacKernelSDK
@@ -182,8 +208,8 @@ jobs:
           path: build-output/
 
   release:
-    needs: [build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt]
-    if: always() && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && (needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success')
+    needs: [build-lilu, build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt]
+    if: always() && needs.build-lilu.result != 'failure' && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && (needs.build-lilu.result == 'success' || needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

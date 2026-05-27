@@ -28,6 +28,16 @@ def get_latest_sha(repo):
             raise
     raise RuntimeError(f"No master or main branch found for {repo}")
 
+def get_latest_release_tag(repo):
+    try:
+        url = f"{GITHUB_API}/{repo}/releases/latest"
+        data = _make_request(url)
+        return data.get("tag_name", "")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return ""
+        raise
+
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
     sha_path = os.environ.get("SHA_PATH", "last-build-sha.json")
@@ -61,6 +71,23 @@ def main():
                 print(f"{name}: current {sha[:8]}")
             except Exception as e:
                 print(f"{name}: error - {e}")
+        for name, info in config.get("download_repos", {}).items():
+            try:
+                tag = get_latest_release_tag(info["repo"])
+                current_sha[f"dl_{name}"] = tag
+                print(f"{name}: current release {tag}")
+            except Exception as e:
+                print(f"{name}: error - {e}")
+        for name, info in config.get("raw_downloads", {}).items():
+            repo = info.get("repo", "")
+            if not repo:
+                continue
+            try:
+                sha = get_latest_sha(repo)
+                current_sha[f"raw_{name}"] = sha
+                print(f"{name}: current {sha[:8]}")
+            except Exception as e:
+                print(f"{name}: error - {e}")
         current_sha_path = os.environ.get("CURRENT_SHA_PATH", "/tmp/current-sha.json")
         with open(current_sha_path, "w") as f:
             json.dump(current_sha, f, indent=2)
@@ -81,6 +108,40 @@ def main():
             sha = get_latest_sha(repo)
             current_sha[name] = sha
             last = last_sha.get(name, "")
+            if sha != last:
+                print(f"{name}: new commit {sha[:8]} (was {last[:8] if last else 'none'})")
+                needs_build = True
+            else:
+                print(f"{name}: no change {sha[:8]}")
+        except Exception as e:
+            print(f"{name}: error checking - {e}")
+            needs_build = True
+
+    for name, info in config.get("download_repos", {}).items():
+        repo = info["repo"]
+        try:
+            tag = get_latest_release_tag(repo)
+            key = f"dl_{name}"
+            current_sha[key] = tag
+            last = last_sha.get(key, "")
+            if tag != last:
+                print(f"{name}: new release {tag} (was {last or 'none'})")
+                needs_build = True
+            else:
+                print(f"{name}: no change {tag}")
+        except Exception as e:
+            print(f"{name}: error checking release - {e}")
+            needs_build = True
+
+    for name, info in config.get("raw_downloads", {}).items():
+        repo = info.get("repo", "")
+        if not repo:
+            continue
+        try:
+            sha = get_latest_sha(repo)
+            key = f"raw_{name}"
+            current_sha[key] = sha
+            last = last_sha.get(key, "")
             if sha != last:
                 print(f"{name}: new commit {sha[:8]} (was {last[:8] if last else 'none'})")
                 needs_build = True
