@@ -39,11 +39,11 @@ def resolve_raw_download(info):
     print(f"  Resolved {pattern} -> {matches[0]['name']}")
     return download_url
 
-def download_and_extract(asset_url, asset_name, output_dir, kext_names):
+def download_and_extract(download_url, asset_name, output_dir, kext_names):
     tmp_dir = tempfile.mkdtemp()
     tmp_file = os.path.join(tmp_dir, asset_name)
     print(f"Downloading {asset_name}...")
-    urllib.request.urlretrieve(asset_url, tmp_file)
+    urllib.request.urlretrieve(download_url, tmp_file)
 
     if asset_name.endswith(".zip"):
         with zipfile.ZipFile(tmp_file) as zf:
@@ -56,30 +56,6 @@ def download_and_extract(asset_url, asset_name, output_dir, kext_names):
         print(f"Extracted: {os.path.basename(tmp_file)}")
         shutil.rmtree(tmp_dir, ignore_errors=True)
         return
-
-    for root, dirs, files in os.walk(tmp_dir):
-        dirs[:] = [d for d in dirs if d != "__MACOSX"]
-        for d in dirs:
-            if d in kext_names:
-                src = os.path.join(root, d)
-                dst = os.path.join(output_dir, d)
-                if os.path.exists(dst):
-                    shutil.rmtree(dst)
-                shutil.copytree(src, dst)
-                print(f"Extracted: {d}")
-
-    shutil.rmtree(tmp_dir, ignore_errors=True)
-
-
-def download_raw(raw_url, asset_name, output_dir, kext_names):
-    tmp_dir = tempfile.mkdtemp()
-    tmp_file = os.path.join(tmp_dir, asset_name)
-    print(f"Downloading raw: {asset_name}...")
-    urllib.request.urlretrieve(raw_url, tmp_file)
-
-    if asset_name.endswith(".zip"):
-        with zipfile.ZipFile(tmp_file) as zf:
-            zf.extractall(tmp_dir)
     else:
         print(f"  Unsupported format: {asset_name}")
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -141,7 +117,7 @@ def main():
             raw_url = resolve_raw_download(info)
             asset_name = raw_url.split("/")[-1]
             print(f"\n{name}: downloading {asset_name}")
-            download_raw(raw_url, asset_name, output_dir, kexts)
+            download_and_extract(raw_url, asset_name, output_dir, kexts)
         except Exception as e:
             print(f"{name}: error - {e}")
 

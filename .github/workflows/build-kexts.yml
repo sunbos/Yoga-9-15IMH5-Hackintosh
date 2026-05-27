@@ -226,7 +226,7 @@ jobs:
       - name: Organize kexts
         run: |
           mkdir -p release/Kexts
-          find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
+          find all-artifacts -name "*.kext" -maxdepth 3 -not -path "*/lilu-sdk/*" -exec cp -r {} release/Kexts/ \;
           ls -la release/Kexts/
 
       - name: Create archives
