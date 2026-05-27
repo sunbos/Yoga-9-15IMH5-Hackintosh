@@ -1,26 +1,16 @@
 #!/usr/bin/env python3
 import os
-import shutil
 import subprocess
 import sys
 
-
-def strip_binary(kext_path):
-    kext_name = os.path.basename(kext_path)
-    binary_name = kext_name.replace(".kext", "")
-    binary_path = os.path.join(kext_path, "Contents", "MacOS", binary_name)
-    if os.path.exists(binary_path):
-        result = subprocess.run(
-            ["strip", "-S", "-x", binary_path], capture_output=True, text=True
-        )
-        if result.returncode == 0:
-            size = os.path.getsize(binary_path)
-            print(f"Stripped {binary_name} binary: {size/1024:.0f}KB")
-        else:
-            print(f"Strip warning: {result.stderr.strip()}")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from utils import strip_binary, find_kext_in_build, copy_kext_to_output
 
 
 def build(source_dir):
+    """
+    构建 YogaSMC
+    """
     cmd = [
         "xcodebuild",
         "-project",
@@ -51,29 +41,20 @@ def build(source_dir):
 
 def main():
     source_dir = os.environ.get("SOURCE_DIR", "YogaSMC")
+    output_dir = os.environ.get("OUTPUT_DIR", "build-output")
 
+    # 构建
     build(source_dir)
 
-    kext_path = os.path.join(source_dir, "build", "Release", "YogaSMC.kext")
-    if not os.path.exists(kext_path):
-        for root, dirs, files in os.walk(os.path.join(source_dir, "build")):
-            if "YogaSMC.kext" in dirs:
-                kext_path = os.path.join(root, "YogaSMC.kext")
-                break
-
-    if not os.path.exists(kext_path):
+    # 查找构建产物
+    kext_path = find_kext_in_build(source_dir, "YogaSMC.kext")
+    if not kext_path or not os.path.exists(kext_path):
         print("ERROR: YogaSMC.kext not found in build output")
         sys.exit(1)
 
+    # 剥离调试符号并输出
     strip_binary(kext_path)
-
-    output_dir = os.environ.get("OUTPUT_DIR", "build-output")
-    os.makedirs(output_dir, exist_ok=True)
-    dest = os.path.join(output_dir, "YogaSMC.kext")
-    if os.path.exists(dest):
-        shutil.rmtree(dest)
-    shutil.copytree(kext_path, dest)
-    print(f"Output: {dest}")
+    copy_kext_to_output(kext_path, output_dir)
 
 
 if __name__ == "__main__":
