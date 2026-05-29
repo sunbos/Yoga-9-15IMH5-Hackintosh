@@ -13,8 +13,7 @@
     "hw_variant": "0x12",
     "upstream_repo": "OpenIntelWireless/IntelBluetoothFirmware",
     "patches": [
-      "patches/intelbt/0001-IntelBTPatcher-Fix-BLE-devices.patch",
-      "patches/intelbt/0001-IntelBTPatcher-Tahoe-compat.patch"
+      "patches/intelbt/0001-IntelBTPatcher-Fix-BLE-devices.patch"
     ]
   },
   "audio": {
