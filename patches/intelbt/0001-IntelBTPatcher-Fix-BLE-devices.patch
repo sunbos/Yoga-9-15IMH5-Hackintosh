@@ -97,7 +97,7 @@ index 79cce98..e8cd9c0 100644
          }
      } else {
          hdr = (HciCommandHdr *)data;
-@@ -218,3 +250,83 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
+@@ -218,3 +250,84 @@ IOReturn CIntelBTPatcher::newHostDeviceRequest(void *that, IOService *provider,
      }
      return FunctionCast(newHostDeviceRequest, callbackIBTPatcher->oldHostDeviceRequest)(that, provider, request, data, descriptor, length, completion, timeout);
  }
