@@ -46,10 +46,11 @@ def build_all(source_dir):
     result = subprocess.run(cmd, cwd=source_dir, capture_output=True, text=True)
     if result.returncode != 0:
         print("Build FAILED:")
-        for line in result.stderr.splitlines():
+        output = (result.stdout or "") + "\n" + (result.stderr or "")
+        for line in output.splitlines():
             if "error:" in line.lower() or "undefined" in line.lower() or "ld:" in line.lower():
                 print(f"  {line}")
-        print(result.stderr[-3000:] if result.stderr else "")
+        print(output[-3000:])
         sys.exit(1)
     print("Build succeeded")
 
