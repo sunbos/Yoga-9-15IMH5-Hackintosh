@@ -3,15 +3,25 @@ From: lshbluesky <lshbluesky@gmail.com>
 Date: Mon, 6 Oct 2025 22:06:53 +0800
 Subject: [PATCH 1/2] IntelBTPatcher: Add compatibility for macOS Tahoe 26
 
+Based on upstream PR #506 (leogps) and confirmed working by lshbluesky
+in issue #505. Adds Tahoe SDK define and raises max kernel version.
 ---
- IntelBTPatcher/IntelBTPatcher.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ IntelBTPatcher/IntelBTPatcher.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/IntelBTPatcher/IntelBTPatcher.cpp b/IntelBTPatcher/IntelBTPatcher.cpp
 index 1234567..abcdefg 100644
 --- a/IntelBTPatcher/IntelBTPatcher.cpp
 +++ b/IntelBTPatcher/IntelBTPatcher.cpp
-@@ -37,7 +37,7 @@ PluginConfiguration ADDPR(config) {
+@@ -4,6 +4,7 @@
+ //
+ //  Created by zxystd <zxystd@foxmail.com> on 2021/2/8.
+ //
++#define __ACIDANTHERA_MAC_SDK 2600
+ #include <Headers/kern_api.hpp>
+ #include <Headers/kern_util.hpp>
+ #include <Headers/plugin_start.hpp>
+@@ -37,7 +38,7 @@ PluginConfiguration ADDPR(config) {
      bootargBeta,
      arrsize(bootargBeta),
      KernelVersion::MountainLion,

@@ -116,7 +116,8 @@ index 79cce98..e8cd9c0 100644
 +    static bool sentExtraFeaturesStatus = false;
 +
 +    if (dataBuffer && bytesTransferred) {
-+        void *buffer = IOMalloc(bytesTransferred);
++        uint32_t allocSize = bytesTransferred;
++        void *buffer = IOMalloc(allocSize);
 +        if (dataBuffer->getLength() > 0 && (getKernelVersion() < KernelVersion::Sequoia || !dataBuffer->prepare(kIODirectionInOut))) {
 +            dataBuffer->readBytes(0, buffer, bytesTransferred);
 +            HciEventHdr *hdr = (HciEventHdr *)buffer;
@@ -142,7 +143,7 @@ index 79cce98..e8cd9c0 100644
 +            }
 +            if (getKernelVersion() >= KernelVersion::Sequoia) dataBuffer->complete(kIODirectionInOut);
 +        }
-+        IOFree(buffer, bytesTransferred);
++        IOFree(buffer, allocSize);
 +    }
 +    if (asyncOwner->action)
 +        asyncOwner->action(asyncOwner->owner, parameter, status, bytesTransferred);
@@ -202,7 +203,7 @@ index 0e5f7b3..fd37fe7 100644
  
  const char *requestDirectionNames[] = {
      "OUT",
-@@ -82,12 +75,18 @@ public:
+@@ -82,12 +75,17 @@ public:
      static IOReturn newFindQueueRequest(void *that, unsigned short arg1, void *addr, unsigned short arg2, bool arg3, void **hciRequestPtr);
      
      static IOReturn newHostDeviceRequest(void *that, IOService *provider, StandardUSB::DeviceRequest &request, void *data, IOMemoryDescriptor *descriptor, unsigned int &length,IOUSBHostCompletion *completion, unsigned int timeout);
@@ -217,7 +218,6 @@ index 0e5f7b3..fd37fe7 100644
      
  private:
 +    static void *_hookPipeInstance;
-+    static AsyncOwnerData *_interruptPipeAsyncOwner;
      static bool _randomAddressInit;
  };
  

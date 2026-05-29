@@ -29,6 +29,7 @@ def build(source_dir):
         "YogaSMC",
         "-configuration",
         "Release",
+        "-arch", "x86_64",
         "CODE_SIGN_IDENTITY=-",
         "CODE_SIGNING_REQUIRED=NO",
         "CODE_SIGNING_ALLOWED=NO",

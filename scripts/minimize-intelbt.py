@@ -38,6 +38,7 @@ def build_all(source_dir):
     cmd = [
         "xcodebuild", "-project", "IntelBluetoothFirmware.xcodeproj",
         "-alltargets", "-configuration", "Release",
+        "-arch", "x86_64",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO",
         "LILU_KEXTPATH=$(SRCROOT)/Lilu.kext",
     ]
@@ -63,7 +64,6 @@ def minimize_plist(kext_path, keep_personalities):
         print(f"Removed personality: {k}")
     with open(info_path, "wb") as f:
         plistlib.dump(plist, f)
-    subprocess.run(["plutil", "-lint", info_path], capture_output=True)
 
 def strip_binary(kext_path):
     kext_name = os.path.basename(kext_path)
@@ -109,6 +109,9 @@ def main():
                 if kext_name in dirs:
                     kext_path = os.path.join(root, kext_name)
                     break
+        if not os.path.exists(kext_path):
+            print(f"ERROR: {kext_name} not found in build output")
+            sys.exit(1)
         minimize_plist(kext_path, keep_pers)
         strip_binary(kext_path)
         dest = os.path.join(output_dir, kext_name)

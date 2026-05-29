@@ -36,6 +36,7 @@ def build(source_dir, target):
     cmd = [
         "xcodebuild", "-project", "itlwm.xcodeproj",
         "-target", target, "-configuration", "Release",
+        "-arch", "x86_64",
         "MACOSX_DEPLOYMENT_TARGET=10.15",
         "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO",
         "CODE_SIGNING_ALLOWED=NO",
@@ -57,7 +58,6 @@ def minimize_plist(kext_path, pci_id):
             print(f"Set IOPCIMatch={pci_id} for {personality_name}")
     with open(info_path, "wb") as f:
         plistlib.dump(plist, f)
-    subprocess.run(["plutil", "-lint", info_path], capture_output=True)
 
 def strip_binary(kext_path):
     binary_path = os.path.join(kext_path, "Contents", "MacOS", "AirportItlwm")
@@ -91,6 +91,10 @@ def main():
             if "AirportItlwm.kext" in dirs:
                 kext_path = os.path.join(root, "AirportItlwm.kext")
                 break
+
+    if not os.path.exists(kext_path):
+        print("ERROR: AirportItlwm.kext not found in build output")
+        sys.exit(1)
 
     minimize_plist(kext_path, pci_id)
     strip_binary(kext_path)

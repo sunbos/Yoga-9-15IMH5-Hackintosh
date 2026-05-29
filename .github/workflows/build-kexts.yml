@@ -62,17 +62,29 @@ jobs:
           name: lilu-sdk
           path: /tmp/lilu-sdk/
 
+      - name: Upload MacKernelSDK
+        uses: actions/upload-artifact@v5
+        with:
+          name: mackernelsdk
+          path: MacKernelSDK
+
   build-wifi:
-    needs: check-updates
+    needs: [check-updates, build-lilu]
     if: needs.check-updates.outputs.needs_build == 'true'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
+      - name: Download MacKernelSDK
+        uses: actions/download-artifact@v5
+        with:
+          name: mackernelsdk
+          path: /tmp/mackernelsdk
+
       - name: Clone itlwm
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/itlwm.git
-          cd itlwm && git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
+          cp -R /tmp/mackernelsdk/MacKernelSDK itlwm/
 
       - name: Build & minimize AirportItlwm
         env:
@@ -99,12 +111,17 @@ jobs:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
+      - name: Download MacKernelSDK
+        uses: actions/download-artifact@v5
+        with:
+          name: mackernelsdk
+          path: /tmp/mackernelsdk
+
       - name: Clone IntelBluetoothFirmware
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
-          cd IntelBluetoothFirmware
-          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          cp -R /tmp/lilu-sdk/Lilu.kext .
+          cp -R /tmp/mackernelsdk/MacKernelSDK IntelBluetoothFirmware/
+          cp -R /tmp/lilu-sdk/Lilu.kext IntelBluetoothFirmware/
 
       - name: Build & minimize IntelBT
         env:
@@ -131,12 +148,17 @@ jobs:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
+      - name: Download MacKernelSDK
+        uses: actions/download-artifact@v5
+        with:
+          name: mackernelsdk
+          path: /tmp/mackernelsdk
+
       - name: Clone AppleALC
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
-          cd AppleALC
-          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          cp -R /tmp/lilu-sdk/Lilu.kext .
+          cp -R /tmp/mackernelsdk/MacKernelSDK AppleALC/
+          cp -R /tmp/lilu-sdk/Lilu.kext AppleALC/
 
       - name: Build & minimize AppleALC
         env:
@@ -164,12 +186,18 @@ jobs:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
+      - name: Download MacKernelSDK
+        uses: actions/download-artifact@v5
+        with:
+          name: mackernelsdk
+          path: /tmp/mackernelsdk
+
       - name: Clone YogaSMC
         run: |
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
+          cp -R /tmp/mackernelsdk/MacKernelSDK YogaSMC/
+          cp -R /tmp/lilu-sdk/Lilu.kext YogaSMC/
           cd YogaSMC
-          git clone --depth 1 https://github.com/acidanthera/MacKernelSDK.git
-          cp -R /tmp/lilu-sdk/Lilu.kext .
           git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
           cd VirtualSMC
           ln -s ../MacKernelSDK MacKernelSDK
@@ -216,7 +244,9 @@ jobs:
 
       - name: Get date
         id: date
-        run: echo "date=$(TZ=Asia/Shanghai date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "date=$(TZ=Asia/Shanghai date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+          echo "time=$(TZ=Asia/Shanghai date +%H%M)" >> "$GITHUB_OUTPUT"
 
       - name: Download all artifacts
         uses: actions/download-artifact@v5
@@ -239,8 +269,9 @@ jobs:
             [ -d "$kext" ] && zip -r "../../${kext%.kext}-${DATE}.zip" "$kext" || true
           done
           if [ -d IntelBluetoothFirmware.kext ] || [ -d IntelBTPatcher.kext ]; then
-            zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext BlueToolFixup.kext 2>/dev/null || \
-            zip -r "../../IntelBT-${DATE}.zip" IntelBluetoothFirmware.kext IntelBTPatcher.kext
+            bt_targets="IntelBluetoothFirmware.kext IntelBTPatcher.kext"
+            [ -d BlueToolFixup.kext ] && bt_targets="$bt_targets BlueToolFixup.kext"
+            zip -r "../../IntelBT-${DATE}.zip" $bt_targets
           fi
 
       - name: Update last-build-sha.json
@@ -268,8 +299,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: kexts-${{ steps.date.outputs.date }}.${{ github.run_number }}
-          name: "Yoga 9 15IMH5 Kexts Build (${{ steps.date.outputs.date }} #${{ github.run_number }})"
+          tag_name: kexts-${{ steps.date.outputs.date }}.${{ steps.date.outputs.time }}.${{ github.run_number }}
+          name: "Yoga 9 15IMH5 Kexts Build (${{ steps.date.outputs.date }} ${{ steps.date.outputs.time }} #${{ github.run_number }})"
           body: |
             Automated kext build for Yoga 9 15IMH5 (Lenovo Yoga 9 15IMH5, i9-10980HK)
 
@@ -279,7 +310,7 @@ jobs:
             - IntelBTPatcher: with BLE fix patch
             - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)
-            - IO80211FamilyLegacy + IOSkywalkFamily: from OCLP payloads
+            - IO80211FamilyLegacy + IOSkywalkFamily: from OCLP payloads (required for AirportItlwm on Sequoia/Tahoe)
             - All other kexts: latest upstream releases
           files: |
             Yoga-9-15IMH5-Kexts-*.zip

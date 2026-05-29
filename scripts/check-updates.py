@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -13,8 +14,28 @@ def _make_request(url):
     if token:
         headers["Authorization"] = f"token {token}"
     req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read())
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 503) and attempt < 2:
+                wait = 2 ** (attempt + 1)
+                try:
+                    wait = int(e.headers.get("Retry-After", wait))
+                except (ValueError, TypeError):
+                    pass
+                print(f"  HTTP {e.code}, retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            raise
+        except urllib.error.URLError as e:
+            if attempt < 2:
+                wait = 2 ** (attempt + 1)
+                print(f"  Network error ({e.reason}), retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            raise
 
 def get_latest_sha(repo):
     for branch in ("master", "main"):
@@ -26,7 +47,14 @@ def get_latest_sha(repo):
             if e.code == 404:
                 continue
             raise
-    raise RuntimeError(f"No master or main branch found for {repo}")
+    # Fallback: query the repo's actual default branch
+    try:
+        repo_info = _make_request(f"{GITHUB_API}/{repo}")
+        default_branch = repo_info["default_branch"]
+        data = _make_request(f"{GITHUB_API}/{repo}/commits/{default_branch}")
+        return data["sha"]
+    except Exception as e:
+        raise RuntimeError(f"No master or main branch found for {repo}: {e}") from e
 
 def get_latest_release_tag(repo):
     try:
@@ -37,6 +65,42 @@ def get_latest_release_tag(repo):
         if e.code == 404:
             return ""
         raise
+
+def _collect_current_shas(config):
+    """Collect current SHA/tag values from all tracked repos."""
+    repos_to_check = {
+        "itlwm": config["upstream_repos"]["itlwm"],
+        "intelbt": config["upstream_repos"]["intelbt"],
+        "applealc": config["upstream_repos"]["applealc"],
+        "lilu": config["upstream_repos"]["lilu"],
+        "yogasmc": config["upstream_repos"]["yogasmc"],
+    }
+    current_sha = {}
+    for name, repo in repos_to_check.items():
+        try:
+            sha = get_latest_sha(repo)
+            current_sha[name] = sha
+        except Exception as e:
+            print(f"{name}: error - {e}")
+            current_sha[name] = None
+    for name, info in config.get("download_repos", {}).items():
+        try:
+            tag = get_latest_release_tag(info["repo"])
+            current_sha[f"dl_{name}"] = tag
+        except Exception as e:
+            print(f"{name}: error - {e}")
+            current_sha[f"dl_{name}"] = None
+    for name, info in config.get("raw_downloads", {}).items():
+        repo = info.get("repo", "")
+        if not repo:
+            continue
+        try:
+            sha = get_latest_sha(repo)
+            current_sha[f"raw_{name}"] = sha
+        except Exception as e:
+            print(f"{name}: error - {e}")
+            current_sha[f"raw_{name}"] = None
+    return current_sha
 
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
@@ -52,111 +116,42 @@ def main():
     else:
         last_sha = {}
 
+    current_sha = _collect_current_shas(config)
+
     if force:
         print("force_build=true, skipping update check")
-        with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-            out.write("needs_build=true\n")
-        repos_to_check = {
-            "itlwm": config["upstream_repos"]["itlwm"],
-            "intelbt": config["upstream_repos"]["intelbt"],
-            "applealc": config["upstream_repos"]["applealc"],
-            "lilu": config["upstream_repos"]["lilu"],
-            "yogasmc": config["upstream_repos"]["yogasmc"],
-        }
-        current_sha = {}
-        for name, repo in repos_to_check.items():
-            try:
-                sha = get_latest_sha(repo)
-                current_sha[name] = sha
-                print(f"{name}: current {sha[:8]}")
-            except Exception as e:
-                print(f"{name}: error - {e}")
-        for name, info in config.get("download_repos", {}).items():
-            try:
-                tag = get_latest_release_tag(info["repo"])
-                current_sha[f"dl_{name}"] = tag
-                print(f"{name}: current release {tag}")
-            except Exception as e:
-                print(f"{name}: error - {e}")
-        for name, info in config.get("raw_downloads", {}).items():
-            repo = info.get("repo", "")
-            if not repo:
+        needs_build = True
+    else:
+        needs_build = False
+        for key, value in current_sha.items():
+            if value is None:
+                needs_build = True
                 continue
-            try:
-                sha = get_latest_sha(repo)
-                current_sha[f"raw_{name}"] = sha
-                print(f"{name}: current {sha[:8]}")
-            except Exception as e:
-                print(f"{name}: error - {e}")
-        current_sha_path = os.environ.get("CURRENT_SHA_PATH", "/tmp/current-sha.json")
-        with open(current_sha_path, "w") as f:
-            json.dump(current_sha, f, indent=2)
-        return
-
-    repos_to_check = {
-        "itlwm": config["upstream_repos"]["itlwm"],
-        "intelbt": config["upstream_repos"]["intelbt"],
-        "applealc": config["upstream_repos"]["applealc"],
-        "lilu": config["upstream_repos"]["lilu"],
-        "yogasmc": config["upstream_repos"]["yogasmc"],
-    }
-
-    needs_build = False
-    current_sha = {}
-    for name, repo in repos_to_check.items():
-        try:
-            sha = get_latest_sha(repo)
-            current_sha[name] = sha
-            last = last_sha.get(name, "")
-            if sha != last:
-                print(f"{name}: new commit {sha[:8]} (was {last[:8] if last else 'none'})")
-                needs_build = True
-            else:
-                print(f"{name}: no change {sha[:8]}")
-        except Exception as e:
-            print(f"{name}: error checking - {e}")
-            needs_build = True
-
-    for name, info in config.get("download_repos", {}).items():
-        repo = info["repo"]
-        try:
-            tag = get_latest_release_tag(repo)
-            key = f"dl_{name}"
-            current_sha[key] = tag
+            short = value[:8] if len(value) > 8 else value
             last = last_sha.get(key, "")
-            if tag != last:
-                print(f"{name}: new release {tag} (was {last or 'none'})")
+            last_short = last[:8] if len(last) > 8 else last
+            if value != last:
+                print(f"{key}: new {short} (was {last_short or 'none'})")
                 needs_build = True
             else:
-                print(f"{name}: no change {tag}")
-        except Exception as e:
-            print(f"{name}: error checking release - {e}")
-            needs_build = True
+                print(f"{key}: no change {short}")
 
-    for name, info in config.get("raw_downloads", {}).items():
-        repo = info.get("repo", "")
-        if not repo:
-            continue
-        try:
-            sha = get_latest_sha(repo)
-            key = f"raw_{name}"
-            current_sha[key] = sha
-            last = last_sha.get(key, "")
-            if sha != last:
-                print(f"{name}: new commit {sha[:8]} (was {last[:8] if last else 'none'})")
-                needs_build = True
-            else:
-                print(f"{name}: no change {sha[:8]}")
-        except Exception as e:
-            print(f"{name}: error checking - {e}")
-            needs_build = True
+    gh_output = os.environ.get("GITHUB_OUTPUT")
+    if gh_output:
+        with open(gh_output, "a") as out:
+            out.write(f"needs_build={'true' if needs_build else 'false'}\n")
+    else:
+        print(f"GITHUB_OUTPUT not set, needs_build={needs_build}")
 
-    with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-        out.write(f"needs_build={'true' if needs_build else 'false'}\n")
+    # Preserve last known values for repos that failed this run,
+    # so a transient failure doesn't trigger unnecessary rebuilds next time
+    for key, value in current_sha.items():
+        if value is None and key in last_sha:
+            current_sha[key] = last_sha[key]
 
     current_sha_path = os.environ.get("CURRENT_SHA_PATH", "/tmp/current-sha.json")
     with open(current_sha_path, "w") as f:
-        json.dump(current_sha, f, indent=2)
+        json.dump({k: v for k, v in current_sha.items() if v is not None}, f, indent=2)
 
 if __name__ == "__main__":
     main()

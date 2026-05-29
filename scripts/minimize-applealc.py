@@ -6,56 +6,31 @@ import shutil
 import subprocess
 import sys
 
-def minimize_resources(kext_path, codec, keep_layouts):
+def _safe_int(v, default=-1):
+    """Convert to int, returning default on failure."""
+    try:
+        return int(v)
+    except (ValueError, TypeError):
+        return default
+
+def minimize_resources(kext_path, codec, codec_id, keep_layouts):
     resources_dir = os.path.join(kext_path, "Contents", "Resources")
     if not os.path.exists(resources_dir):
         print("No Resources directory found (already minimized)")
         return
 
-    pinconfigs_path = os.path.join(resources_dir, "PinConfigs.kext")
-    if os.path.exists(pinconfigs_path):
-        minimize_pinconfigs(pinconfigs_path, codec, keep_layouts)
+    # Note: PinConfigs.kext is deleted by AppleALC's "Merge Pinconfigs" build phase
+    # (Tools/merge_pinconfigs.sh merges its data into the main Info.plist then removes it),
+    # so there is no need to process it here.
 
     for item in os.listdir(resources_dir):
         item_path = os.path.join(resources_dir, item)
-        if os.path.isdir(item_path) and item != codec and item != "PinConfigs.kext":
+        if os.path.isdir(item_path) and item != codec:
             shutil.rmtree(item_path)
             print(f"Removed codec resource: {item}")
 
-def minimize_pinconfigs(pinconfigs_path, codec, keep_layouts):
-    info_path = os.path.join(pinconfigs_path, "Contents", "Info.plist")
-    if not os.path.exists(info_path):
-        return
-    with open(info_path, "rb") as f:
-        plist = plistlib.load(f)
-    personalities = plist.get("IOKitPersonalities", {})
-    codec_key = None
-    for k, v in personalities.items():
-        if isinstance(v, dict) and v.get("CodecID") == codec:
-            codec_key = k
-            break
-    if codec_key is None:
-        for k in list(personalities.keys()):
-            if k != f"hda-gfx-{codec}":
-                del personalities[k]
-        codec_key = list(personalities.keys())[0] if personalities else None
-
-    if codec_key and "Layouts" in personalities.get(codec_key, {}):
-        layouts = personalities[codec_key]["Layouts"]
-        original_count = len(layouts)
-        personalities[codec_key]["Layouts"] = [
-            l for l in layouts if l.get("LayoutID") in keep_layouts
-        ]
-        kept = len(personalities[codec_key]["Layouts"])
-        print(f"PinConfigs: kept {kept}/{original_count} layouts for {codec}")
-
-    to_remove = [k for k in personalities if k != codec_key]
-    for k in to_remove:
-        del personalities[k]
-        print(f"Removed PinConfigs personality: {k}")
-
-    with open(info_path, "wb") as f:
-        plistlib.dump(plist, f)
+    # Prune HDAConfigDefault in the main Info.plist (merged from PinConfigs by build phase)
+    prune_main_info_plist(kext_path, codec_id, keep_layouts)
 
 def strip_binary(kext_path):
     binary_path = os.path.join(kext_path, "Contents", "MacOS", "AppleALC")
@@ -66,6 +41,58 @@ def strip_binary(kext_path):
             print(f"Stripped AppleALC binary: {size/1024:.0f}KB")
         else:
             print(f"Strip warning: {result.stderr.strip()}")
+
+def prune_main_info_plist(kext_path, codec_id, keep_layouts):
+    """Prune HDAConfigDefault entries from the main AppleALC Info.plist.
+
+    The "Merge Pinconfigs" build phase copies all 657+ entries from
+    PinConfigs.kext into the main Info.plist. We only need entries
+    matching the target codec and layout.
+    """
+    info_path = os.path.join(kext_path, "Contents", "Info.plist")
+    if not os.path.exists(info_path):
+        print(f"No main Info.plist found at {info_path}")
+        return
+    with open(info_path, "rb") as f:
+        plist = plistlib.load(f)
+
+    personalities = plist.get("IOKitPersonalities", {})
+    alc_personality = personalities.get("as.vit9696.AppleALC", {})
+    hda_configs = alc_personality.get("HDAConfigDefault", [])
+    if not hda_configs:
+        print("No HDAConfigDefault in main Info.plist (already pruned?)")
+        return
+
+    original_count = len(hda_configs)
+    codec_id = _safe_int(codec_id)
+    keep_set = set(_safe_int(x) for x in keep_layouts)
+    kept = [
+        e for e in hda_configs
+        if isinstance(e, dict)
+        and _safe_int(e.get("CodecID")) == codec_id
+        and _safe_int(e.get("LayoutID")) in keep_set
+    ]
+    # Fallback: if no exact match (e.g. custom layout not in upstream),
+    # keep all entries for this codec
+    if not kept:
+        kept = [
+            e for e in hda_configs
+            if isinstance(e, dict) and _safe_int(e.get("CodecID")) == codec_id
+        ]
+        if kept:
+            print(f"No exact HDAConfigDefault match for layout {keep_layouts}, "
+                  f"keeping all {len(kept)} entries for codec {codec_id}")
+
+    if not kept:
+        print(f"WARNING: No HDAConfigDefault entries matched codec {codec_id}, "
+              f"keeping original {original_count} entries to avoid breaking audio")
+        return
+
+    alc_personality["HDAConfigDefault"] = kept
+    with open(info_path, "wb") as f:
+        plistlib.dump(plist, f)
+    print(f"Main Info.plist HDAConfigDefault: {original_count} -> {len(kept)} "
+          f"(removed {original_count - len(kept)} entries)")
 
 def inject_custom_layouts(source_dir, codec, keep_layouts):
     patches_dir = os.environ.get("PATCHES_DIR", "patches/applealc")
@@ -149,31 +176,31 @@ def prune_codec_info_plist(source_dir, codec, keep_layouts):
         plist = plistlib.load(f)
 
     files_dict = plist.get("Files", {})
-    keep_set = set(keep_layouts)
+    keep_set = set(_safe_int(x) for x in keep_layouts)
 
     for key in ("Layouts", "Platforms"):
         entries = files_dict.get(key, [])
         original_count = len(entries)
-        existing_ids = {e.get("Id") for e in entries if isinstance(e, dict)}
-        kept = [e for e in entries if isinstance(e, dict) and e.get("Id") in keep_set]
+        existing_ids = {_safe_int(e.get("Id")) for e in entries if isinstance(e, dict)}
+        kept = [e for e in entries if isinstance(e, dict) and _safe_int(e.get("Id")) in keep_set]
         added = 0
         for lid in keep_layouts:
-            if lid not in existing_ids:
+            if _safe_int(lid) not in existing_ids:
                 prefix = "layout" if key == "Layouts" else "Platforms"
                 kept.append({
-                    "Id": lid,
+                    "Id": _safe_int(lid),
                     "Path": f"{prefix}{lid}.xml.zlib",
                 })
                 added += 1
                 print(f"Added missing {key} entry for layout {lid}")
         files_dict[key] = kept
-        removed = original_count - len([e for e in entries if isinstance(e, dict) and e.get("Id") in keep_set])
+        removed = original_count - (len(kept) - added)
         print(f"Info.plist {key}: {original_count} -> {len(kept)} (removed {removed}, added {added})")
 
     pin_configs = plist.get("PinConfigurations")
     if isinstance(pin_configs, list):
         original_pc = len(pin_configs)
-        plist["PinConfigurations"] = [p for p in pin_configs if isinstance(p, dict) and p.get("LayoutID") in keep_set]
+        plist["PinConfigurations"] = [p for p in pin_configs if isinstance(p, dict) and _safe_int(p.get("LayoutID")) in keep_set]
         print(f"Info.plist PinConfigurations: {original_pc} -> {len(plist['PinConfigurations'])}")
 
     with open(info_path, "wb") as f:
@@ -207,6 +234,7 @@ def main():
     source_dir = os.environ.get("SOURCE_DIR", "AppleALC")
     audio_config = config["audio"]
     codec = audio_config["codec"]
+    codec_id = audio_config["codec_id"]
     keep_layouts = audio_config["keep_layouts"]
 
     prune_source_resources(source_dir, codec, keep_layouts)
@@ -221,7 +249,7 @@ def main():
                 kext_path = os.path.join(root, "AppleALC.kext")
                 break
 
-    minimize_resources(kext_path, codec, keep_layouts)
+    minimize_resources(kext_path, codec, codec_id, keep_layouts)
     strip_binary(kext_path)
 
     output_dir = os.environ.get("OUTPUT_DIR", "build-output")

@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Playwright MCP
+.playwright-mcp/
+
+# IDE
+.vscode/
+.idea/
+
+# Build output
+build-output/
