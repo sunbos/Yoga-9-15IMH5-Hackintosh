@@ -84,7 +84,7 @@ jobs:
       - name: Clone itlwm
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/itlwm.git
-          cp -R /tmp/mackernelsdk/MacKernelSDK itlwm/
+          cp -R /tmp/mackernelsdk itlwm/MacKernelSDK
 
       - name: Build & minimize AirportItlwm
         env:
@@ -120,7 +120,7 @@ jobs:
       - name: Clone IntelBluetoothFirmware
         run: |
           git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
-          cp -R /tmp/mackernelsdk/MacKernelSDK IntelBluetoothFirmware/
+          cp -R /tmp/mackernelsdk IntelBluetoothFirmware/MacKernelSDK
           cp -R /tmp/lilu-sdk/Lilu.kext IntelBluetoothFirmware/
 
       - name: Build & minimize IntelBT
@@ -157,7 +157,7 @@ jobs:
       - name: Clone AppleALC
         run: |
           git clone --depth 1 https://github.com/acidanthera/AppleALC.git
-          cp -R /tmp/mackernelsdk/MacKernelSDK AppleALC/
+          cp -R /tmp/mackernelsdk AppleALC/MacKernelSDK
           cp -R /tmp/lilu-sdk/Lilu.kext AppleALC/
 
       - name: Build & minimize AppleALC
@@ -195,7 +195,7 @@ jobs:
       - name: Clone YogaSMC
         run: |
           git clone --depth 1 https://github.com/zhen-zen/YogaSMC.git
-          cp -R /tmp/mackernelsdk/MacKernelSDK YogaSMC/
+          cp -R /tmp/mackernelsdk YogaSMC/MacKernelSDK
           cp -R /tmp/lilu-sdk/Lilu.kext YogaSMC/
           cd YogaSMC
           git clone --depth 1 https://github.com/acidanthera/VirtualSMC.git
