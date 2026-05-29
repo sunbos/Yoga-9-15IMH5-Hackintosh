@@ -14,6 +14,10 @@ on:
           - 'false'
           - 'true'
 
+concurrency:
+  group: build-kexts
+  cancel-in-progress: false
+
 env:
   CONFIG_PATH: config/device-config.json
   SHA_PATH: last-build-sha.json
@@ -248,15 +252,16 @@ jobs:
           echo "date=$(TZ=Asia/Shanghai date +%Y%m%d)" >> "$GITHUB_OUTPUT"
           echo "time=$(TZ=Asia/Shanghai date +%H%M)" >> "$GITHUB_OUTPUT"
 
-      - name: Download all artifacts
+      - name: Download kext artifacts
         uses: actions/download-artifact@v5
         with:
+          pattern: '{airportitlwm,intelbt,applealc,yogasmc,prebuilt}'
           path: all-artifacts
 
       - name: Organize kexts
         run: |
           mkdir -p release/Kexts
-          find all-artifacts -name "*.kext" -maxdepth 3 -not -path "*/lilu-sdk/*" -exec cp -r {} release/Kexts/ \;
+          find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
           ls -la release/Kexts/
 
       - name: Create archives
