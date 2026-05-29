@@ -26,7 +26,7 @@ def apply_patches(source_dir, patches):
     for patch_file in patches:
         patch_path = os.path.join(os.environ.get("GITHUB_WORKSPACE", "."), patch_file)
         result = subprocess.run(
-            ["git", "apply", patch_path],
+            ["git", "apply", "--ignore-whitespace", patch_path],
             cwd=source_dir, capture_output=True, text=True
         )
         if result.returncode != 0:
