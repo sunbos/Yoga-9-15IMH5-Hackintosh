@@ -136,10 +136,14 @@ def download_and_extract(download_url, asset_name, output_dir, kext_names):
             return
 
         found = set()
+        wanted = set(kext_names)
+        # Walk extracted tree and copy any .kext directory that matches
+        # a requested name. Works for flat (kext.zip/Foo.kext) and nested
+        # (kext.zip/release/Foo/Release/Foo.kext) layouts alike.
         for root, dirs, files in os.walk(tmp_dir):
             dirs[:] = [d for d in dirs if d != "__MACOSX"]
             for d in dirs:
-                if d in kext_names:
+                if d.endswith(".kext") and d in wanted and d not in found:
                     src = os.path.join(root, d)
                     dst = os.path.join(output_dir, d)
                     if os.path.exists(dst):
@@ -147,7 +151,7 @@ def download_and_extract(download_url, asset_name, output_dir, kext_names):
                     shutil.copytree(src, dst)
                     print(f"Extracted: {d}")
                     found.add(d)
-        missing = set(kext_names) - found
+        missing = wanted - found
         if missing:
             raise RuntimeError(f"Missing kexts in {asset_name}: {missing}")
     finally:
