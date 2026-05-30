@@ -18,3 +18,7 @@ __pycache__/
 
 # Build output
 build-output/
+extracted_kexts/
+
+# Claude Code
+CLAUDE.md
