@@ -92,7 +92,7 @@ def download_and_extract(download_url, asset_name, output_dir, kext_names):
         req = urllib.request.Request(download_url, headers={"User-Agent": "Yoga-9-15IMH5-Build"})
         for attempt in range(3):
             try:
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urllib.request.urlopen(req, timeout=300) as resp:
                     with open(tmp_file, "wb") as f:
                         shutil.copyfileobj(resp, f)
                 break
@@ -120,6 +120,18 @@ def download_and_extract(download_url, asset_name, output_dir, kext_names):
         if asset_name.endswith(".zip"):
             with zipfile.ZipFile(tmp_file) as zf:
                 zf.extractall(tmp_dir)
+            # Some repos (e.g. ClayMoreBoy) nest kexts as inner .zip files.
+            # Extract any inner zips so .kext directories become visible.
+            for root, dirs, files in os.walk(tmp_dir):
+                dirs[:] = [d for d in dirs if d != "__MACOSX"]
+                for f in files:
+                    if f.endswith(".zip"):
+                        inner = os.path.join(root, f)
+                        try:
+                            with zipfile.ZipFile(inner) as izf:
+                                izf.extractall(root)
+                        except zipfile.BadZipFile:
+                            pass
         elif asset_name.endswith(".kext"):
             if os.path.isdir(tmp_file):
                 dst = os.path.join(output_dir, os.path.basename(tmp_file))
