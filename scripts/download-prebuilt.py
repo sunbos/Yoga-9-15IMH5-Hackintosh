@@ -64,8 +64,11 @@ def _make_request(url):
                 continue
             raise
 
-def get_latest_release(repo):
-    url = f"{GITHUB_API}/{repo}/releases/latest"
+def get_latest_release(repo, tag=None):
+    if tag:
+        url = f"{GITHUB_API}/{repo}/releases/tags/{tag}"
+    else:
+        url = f"{GITHUB_API}/{repo}/releases/latest"
     return _make_request(url)
 
 def resolve_raw_download(info):
@@ -213,8 +216,9 @@ def main():
     for name, info in download_repos.items():
         repo = info["repo"]
         kexts = info["kexts"]
+        tag = info.get("tag")
         try:
-            release = get_latest_release(repo)
+            release = get_latest_release(repo, tag)
             tag = release["tag_name"]
             print(f"\n{name}: {repo} latest release = {tag}")
             asset = select_best_asset(release.get("assets", []))

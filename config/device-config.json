@@ -43,7 +43,7 @@
     "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
     "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext", "VoodooI2CHID.kext"]},
     "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]},
-    "horndis": {"repo": "TomHeaven/HoRNDIS", "kexts": ["HoRNDIS.kext"]}
+    "horndis": {"repo": "TomHeaven/HoRNDIS", "tag": "rel9.3", "kexts": ["HoRNDIS.kext"]}
   },
   "nightly_builds": {
     "repo": "ClayMoreBoy/Hackintosh-Kext-Factory",
