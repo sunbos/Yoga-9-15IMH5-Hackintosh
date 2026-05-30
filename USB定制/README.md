@@ -28,7 +28,7 @@
 - `usb-port-number`（对应 `port`）
 - `usb-port-type`（对应 `UsbConnector`）
 
-当前 EFI 中的 USBMap.kext 已通过 CorpNewt/USBMap 的 `USBMapInjectorEdit` 转换脚本添加了这些键。仓库中的原始文件不包含这些键。
+当前 EFI 中的 USBMap.kext 已通过 CorpNewt/USBMap 的 [USBMapInjectorEdit](https://github.com/CorpNewt/USBMap/blob/master/USBMapInjectorEdit.command) 转换脚本添加了这些键。仓库中的原始文件不包含这些键。
 
 ## 2. USBPorts.kext
 
