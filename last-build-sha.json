@@ -5,13 +5,9 @@
   "lilu": "0515f40b7f2a096adc85e832a4c6104fbd07f936",
   "yogasmc": "299907b359c4d323e8c45ecc91e88c2a87b6082d",
   "dl_lilu": "1.7.2",
-  "dl_whatevergreen": "1.7.0",
-  "dl_restrictevents": "1.1.6",
-  "dl_virtualsmc": "1.3.7",
-  "dl_nvmefix": "1.1.3",
   "dl_brcmpatchram": "2.7.2",
-  "dl_voodoops2": "2.3.7",
   "dl_voodooi2c": "v2.9.1",
   "dl_ecenabler": "1.0.6",
+  "dl_horndis": "rel9.3",
   "build_date": "2026-05-30"
 }
