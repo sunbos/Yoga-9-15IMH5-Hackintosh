@@ -262,6 +262,8 @@ jobs:
         run: |
           mkdir -p release/Kexts
           find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
+          # Copy custom USBMap.kext (Tahoe+ version, without dock scenario)
+          cp -r "USB定制/Tahoe+/不接雷电扩展坞/MacBookPro16,1/USBMap.kext" release/Kexts/ 2>/dev/null || true
           ls -la release/Kexts/
 
       - name: Create archives
