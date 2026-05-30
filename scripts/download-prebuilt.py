@@ -165,6 +165,24 @@ def select_best_asset(assets):
         return kext_assets[0]
     return None
 
+def select_nightly_asset(assets, pattern=None):
+    """Select the best nightly build asset.
+
+    Prefers assets matching the given pattern, then falls back to the
+    most recently named zip file (date-stamped names sort lexicographically).
+    """
+    import fnmatch as _fnmatch
+    zips = [a for a in assets if a["name"].endswith(".zip")]
+    if not zips:
+        return None
+    if pattern:
+        matched = [a for a in zips if _fnmatch.fnmatch(a["name"], pattern)]
+        if matched:
+            matched.sort(key=lambda a: a["name"], reverse=True)
+            return matched[0]
+    zips.sort(key=lambda a: a["name"], reverse=True)
+    return zips[0]
+
 def main():
     config_path = os.environ.get("CONFIG_PATH", "config/device-config.json")
     with open(config_path) as f:
@@ -191,6 +209,27 @@ def main():
                 errors += 1
         except Exception as e:
             print(f"{name}: error - {e}")
+            errors += 1
+
+    nightly = config.get("nightly_builds", {})
+    if nightly:
+        repo = nightly["repo"]
+        asset_pattern = nightly.get("asset_pattern")
+        all_kexts = []
+        for info in nightly.get("kexts", {}).values():
+            all_kexts.extend(info["kexts"])
+        try:
+            release = get_latest_release(repo)
+            tag = release["tag_name"]
+            print(f"\nnightly: {repo} latest = {tag}")
+            asset = select_nightly_asset(release.get("assets", []), asset_pattern)
+            if asset:
+                download_and_extract(asset["browser_download_url"], asset["name"], output_dir, all_kexts)
+            else:
+                print(f"  No suitable asset found in release {tag}")
+                errors += 1
+        except Exception as e:
+            print(f"nightly: error - {e}")
             errors += 1
 
     raw_downloads = config.get("raw_downloads", {})

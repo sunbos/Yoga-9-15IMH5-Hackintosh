@@ -40,14 +40,21 @@
   },
   "download_repos": {
     "lilu": {"repo": "acidanthera/Lilu", "kexts": ["Lilu.kext"]},
-    "whatevergreen": {"repo": "acidanthera/WhateverGreen", "kexts": ["WhateverGreen.kext"]},
-    "restrictevents": {"repo": "acidanthera/RestrictEvents", "kexts": ["RestrictEvents.kext"]},
-    "virtualsmc": {"repo": "acidanthera/VirtualSMC", "kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext", "SMCLightSensor.kext"]},
-    "nvmefix": {"repo": "acidanthera/NVMeFix", "kexts": ["NVMeFix.kext"]},
     "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
-    "voodoops2": {"repo": "acidanthera/VoodooPS2", "kexts": ["VoodooPS2Controller.kext"]},
     "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext", "VoodooI2CHID.kext"]},
-    "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]}
+    "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]},
+    "horndis": {"repo": "TomHeaven/HoRNDIS", "kexts": ["HoRNDIS.kext"]}
+  },
+  "nightly_builds": {
+    "repo": "ClayMoreBoy/Hackintosh-Kext-Factory",
+    "asset_pattern": "ClayMoreBoy-Hackintosh-Kext-*.zip",
+    "kexts": {
+      "whatevergreen": {"kexts": ["WhateverGreen.kext"]},
+      "virtualsmc": {"kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext", "SMCLightSensor.kext"]},
+      "restrictevents": {"kexts": ["RestrictEvents.kext"]},
+      "nvmefix": {"kexts": ["NVMeFix.kext"]},
+      "voodoops2": {"kexts": ["VoodooPS2Controller.kext"]}
+    }
   },
   "raw_downloads": {
     "amfipass": {
