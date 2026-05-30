@@ -309,14 +309,24 @@ jobs:
           body: |
             Automated kext build for Yoga 9 15IMH5 (Lenovo Yoga 9 15IMH5, i9-10980HK)
 
-            **Built from upstream master branches:**
+            **Self-compiled (from upstream master):**
             - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
             - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + BLE fix patch
             - IntelBTPatcher: with BLE fix patch
             - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)
-            - IO80211FamilyLegacy + IOSkywalkFamily: from OCLP payloads (required for AirportItlwm on Sequoia/Tahoe)
-            - All other kexts: latest upstream releases
+
+            **Nightly Build ([ClayMoreBoy/Hackintosh-Kext-Factory](https://github.com/ClayMoreBoy/Hackintosh-Kext-Factory)):**
+            - WhateverGreen, VirtualSMC, RestrictEvents, NVMeFix, VoodooPS2
+
+            **Official Release:**
+            - Lilu, VoodooI2C, BlueToolFixup, ECEnabler
+
+            **OCLP ([dortania/OpenCore-Legacy-Patcher](https://github.com/dortania/OpenCore-Legacy-Patcher)):**
+            - AMFIPass, IO80211FamilyLegacy, IOSkywalkFamily
+
+            **Fork:**
+            - HoRNDIS: [TomHeaven/HoRNDIS](https://github.com/TomHeaven/HoRNDIS)
           files: |
             Yoga-9-15IMH5-Kexts-*.zip
             AirportItlwm-*.zip
