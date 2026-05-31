@@ -61,6 +61,7 @@
       "Path": "SSDT-EC-USBX-LAPTOP.aml"
     }
   ],
+  "ACPI.Delete": [],
   "ACPI.Patch": [
     {
       "Base": "",
@@ -175,6 +176,7 @@
       }
     }
   ],
+  "Booter.MmioWhitelist": [],
   "Booter.Quirks.DevirtualiseMmio": true,
   "Booter.Quirks.EnableWriteUnprotector": false,
   "Booter.Quirks.ProtectUefiServices": true,
@@ -475,6 +477,7 @@
       "PlistPath": "Contents/Info.plist"
     }
   ],
+  "Kernel.Force": [],
   "Kernel.Block": [
     {
       "Arch": "x86_64",
@@ -486,10 +489,13 @@
       "Strategy": "Exclude"
     }
   ],
+  "Kernel.Patch": [],
   "Kernel.Quirks.CustomSMBIOSGuid": true,
   "Kernel.Quirks.DisableIoMapper": true,
   "Kernel.Quirks.PanicNoKextDump": true,
   "Kernel.Quirks.PowerTimeoutKernelPanic": true,
+  "Misc.Entries": [],
+  "Misc.Tools": [],
   "Misc.Boot.HideAuxiliary": false,
   "Misc.Boot.PickerMode": "External",
   "Misc.Debug.DisableWatchDog": true,
@@ -540,6 +546,7 @@
   "PlatformInfo.Generic.SystemSerialNumber": "C02G902HMD6W",
   "PlatformInfo.Generic.SystemUUID": "9B3CD75B-307E-3F5E-8384-FE7C69A0A8FA",
   "PlatformInfo.UpdateSMBIOSMode": "Custom",
+  "UEFI.ReservedMemory": [],
   "UEFI.APFS.EnableJumpstart": false,
   "UEFI.APFS.MinDate": -1,
   "UEFI.APFS.MinVersion": -1,

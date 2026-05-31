@@ -69,7 +69,8 @@
     "extra_drivers": {
       "HfsPlus.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"},
       "apfs_aligned.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"}
-    }
+    },
+    "themes": ["GoldenGate"]
   },
   "raw_downloads": {
     "amfipass": {

@@ -92,8 +92,15 @@ def download_extra_drivers(extra_drivers, drivers_dir):
             print(f"  Warning: failed to download {driver_name} from {repo}: {e}")
 
 
-def download_resources(output_dir):
-    """Download OpenCanopy Resources (Font, Image, Label) from OcBinaryData."""
+def download_resources(output_dir, themes=None):
+    """Download OpenCanopy Resources (Font, Image, Label) from OcBinaryData.
+
+    themes: list of theme subdirectories under Image/Acidanthera/ to download.
+            If None, downloads all. If empty list, downloads none.
+            Default: ["GoldenGate"]
+    """
+    if themes is None:
+        themes = ["GoldenGate"]
     repo = "acidanthera/OcBinaryData"
     resource_dirs = ["Font", "Image", "Label"]
     resources_base = os.path.join(output_dir, "EFI", "OC", "Resources")
@@ -124,12 +131,18 @@ def download_resources(output_dir):
         except Exception as e:
             print(f"  Warning: failed to download Resources/{res_dir}: {e}")
 
-    # Download Image subdirectories (e.g. Acidanthera/GoldenGate)
     image_dir = os.path.join(resources_base, "Image")
     if os.path.isdir(image_dir) and not any(
         os.path.isdir(os.path.join(image_dir, d)) for d in os.listdir(image_dir)
     ):
-        _download_resource_subdir(repo, "Resources/Image", image_dir)
+        if themes:
+            for theme in themes:
+                theme_api = f"Resources/Image/Acidanthera/{theme}"
+                theme_local = os.path.join(image_dir, "Acidanthera", theme)
+                os.makedirs(theme_local, exist_ok=True)
+                _download_resource_subdir(repo, theme_api, theme_local)
+        else:
+            _download_resource_subdir(repo, "Resources/Image", image_dir)
 
 
 def _download_resource_subdir(repo, api_path, local_dir):
@@ -323,8 +336,9 @@ def main():
         download_extra_drivers(extra_drivers, drivers_dir)
 
     # Download OpenCanopy Resources (Font, Image, Label)
+    themes = oc_config.get("themes", ["GoldenGate"])
     print("Downloading OpenCanopy Resources...")
-    download_resources(output_dir)
+    download_resources(output_dir, themes)
 
     # Merge Sample.plist with overrides → config.plist
     sample_plist = os.path.join(output_dir, "Sample.plist")
