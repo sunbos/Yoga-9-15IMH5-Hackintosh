@@ -321,8 +321,12 @@ jobs:
           # Copy Kexts
           cp -r release/Kexts/* release/EFI/OC/Kexts/ 2>/dev/null || true
 
-          # Copy config.plist (preserve existing)
-          cp EFI/OC/config.plist release/EFI/OC/ 2>/dev/null || true
+          # Copy config.plist (from opencore artifact if available, else from repo)
+          if [ -f "opencore-artifact/EFI/OC/config.plist" ]; then
+            cp opencore-artifact/EFI/OC/config.plist release/EFI/OC/
+          else
+            cp EFI/OC/config.plist release/EFI/OC/ 2>/dev/null || true
+          fi
 
           # Copy Resources if exists
           cp -r EFI/OC/Resources release/EFI/OC/ 2>/dev/null || true
