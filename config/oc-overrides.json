@@ -581,7 +581,7 @@
     {
       "Arguments": "",
       "Comment": "",
-      "Enabled": true,
+      "Enabled": false,
       "LoadEarly": false,
       "Path": "FirmwareSettingsEntry.efi"
     }
@@ -590,14 +590,14 @@
     {
       "Arguments": "",
       "Comment": "",
-      "Enabled": true,
+      "Enabled": false,
       "Name": "OpenShell",
       "Path": "OpenShell.efi"
     },
     {
       "Arguments": "",
       "Comment": "",
-      "Enabled": true,
+      "Enabled": false,
       "Name": "ControlMsrE2",
       "Path": "ControlMsrE2.efi"
     }
