@@ -302,17 +302,20 @@ jobs:
           mkdir -p release/EFI/OC/ACPI
           mkdir -p release/EFI/OC/Drivers
           mkdir -p release/EFI/OC/Kexts
+          mkdir -p release/EFI/OC/Tools
 
           # Copy OpenCore files (from artifact if updated, else from repo)
           if [ -d "opencore-artifact" ]; then
             cp opencore-artifact/BOOT/BOOTx64.efi release/EFI/BOOT/ 2>/dev/null || true
             cp opencore-artifact/OC/OpenCore.efi release/EFI/OC/ 2>/dev/null || true
             cp -r opencore-artifact/OC/Drivers/*.efi release/EFI/OC/Drivers/ 2>/dev/null || true
+            cp -r opencore-artifact/OC/Tools/*.efi release/EFI/OC/Tools/ 2>/dev/null || true
           else
             # Fallback: copy from repo's EFI if exists
             cp EFI/BOOT/BOOTx64.efi release/EFI/BOOT/ 2>/dev/null || true
             cp EFI/OC/OpenCore.efi release/EFI/OC/ 2>/dev/null || true
             cp -r EFI/OC/Drivers/*.efi release/EFI/OC/Drivers/ 2>/dev/null || true
+            cp -r EFI/OC/Tools/*.efi release/EFI/OC/Tools/ 2>/dev/null || true
           fi
 
           # Copy ACPI (SSDTs)

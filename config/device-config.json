@@ -65,13 +65,18 @@
       "HfsPlus.efi",
       "OpenCanopy.efi",
       "ResetNvramEntry.efi",
+      "FirmwareSettingsEntry.efi",
       "apfs_aligned.efi"
     ],
     "extra_drivers": {
       "HfsPlus.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"},
       "apfs_aligned.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"}
     },
-    "themes": ["GoldenGate"]
+    "themes": ["GoldenGate"],
+    "tools": [
+      "OpenShell.efi",
+      "ControlMsrE2.efi"
+    ]
   },
   "raw_downloads": {
     "amfipass": {

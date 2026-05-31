@@ -577,6 +577,29 @@
       "Enabled": true,
       "LoadEarly": false,
       "Path": "ResetNvramEntry.efi"
+    },
+    {
+      "Arguments": "",
+      "Comment": "",
+      "Enabled": true,
+      "LoadEarly": false,
+      "Path": "FirmwareSettingsEntry.efi"
+    }
+  ],
+  "Misc.Tools": [
+    {
+      "Arguments": "",
+      "Comment": "",
+      "Enabled": true,
+      "Name": "OpenShell",
+      "Path": "OpenShell.efi"
+    },
+    {
+      "Arguments": "",
+      "Comment": "",
+      "Enabled": true,
+      "Name": "ControlMsrE2",
+      "Path": "ControlMsrE2.efi"
     }
   ],
   "UEFI.Quirks.ReleaseUsbOwnership": true

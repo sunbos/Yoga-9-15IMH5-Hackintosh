@@ -169,8 +169,10 @@ def _download_resource_subdir(repo, api_path, local_dir):
         print(f"  Warning: failed to download {api_path}: {e}")
 
 
-def extract_opencore(zip_path, output_dir, drivers):
+def extract_opencore(zip_path, output_dir, drivers, tools=None):
     """Extract OpenCore files from the RELEASE zip."""
+    if tools is None:
+        tools = []
     with zipfile.ZipFile(zip_path) as zf:
         for info in zf.infolist():
             name = info.filename
@@ -196,6 +198,16 @@ def extract_opencore(zip_path, output_dir, drivers):
             if f.endswith(".efi") and f not in drivers and f != "OpenRuntime.efi":
                 os.remove(os.path.join(drivers_dir, f))
                 print(f"  Removed unused driver: {f}")
+
+    # Filter tools - only keep the ones we need
+    tools_dir = os.path.join(output_dir, "EFI", "OC", "Tools")
+    if os.path.isdir(tools_dir):
+        for f in os.listdir(tools_dir):
+            if f.endswith(".efi") and f not in tools:
+                os.remove(os.path.join(tools_dir, f))
+                print(f"  Removed unused tool: {f}")
+    elif tools:
+        os.makedirs(tools_dir, exist_ok=True)
 
 
 def _convert_from_json(obj):
@@ -326,7 +338,8 @@ def main():
 
     # Extract
     print("Extracting OpenCore files...")
-    extract_opencore(zip_path, output_dir, drivers)
+    tools = oc_config.get("tools", [])
+    extract_opencore(zip_path, output_dir, drivers, tools)
 
     # Download extra drivers (e.g. HfsPlus.efi, apfs_aligned.efi)
     extra_drivers = oc_config.get("extra_drivers", {})
