@@ -421,20 +421,20 @@
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "IntelBluetoothFirmware.kext",
+      "BundlePath": "IntelBTPatcher.kext",
       "Comment": "V2.5.0",
       "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/IntelBluetoothFirmware",
+      "ExecutablePath": "Contents/MacOS/IntelBTPatcher",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "IntelBTPatcher.kext",
+      "BundlePath": "IntelBluetoothFirmware.kext",
       "Comment": "V2.5.0",
       "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/IntelBTPatcher",
+      "ExecutablePath": "Contents/MacOS/IntelBluetoothFirmware",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
@@ -510,7 +510,13 @@
     "SystemAudioVolume": {
       "__bytes__": "46"
     },
-    "boot-args": "-amfipassbeta",
+    "bluetoothExternalDongleFailed": {
+      "__bytes__": "00"
+    },
+    "bluetoothInternalControllerInfo": {
+      "__bytes__": "00000000000000000000000000000000"
+    },
+    "boot-args": "-amfipassbeta -ibtcompatbeta",
     "csr-active-config": {
       "__bytes__": "03080000"
     },
@@ -528,7 +534,9 @@
     "SystemAudioVolume",
     "boot-args",
     "csr-active-config",
-    "prev-lang:kbd"
+    "prev-lang:kbd",
+    "bluetoothExternalDongleFailed",
+    "bluetoothInternalControllerInfo"
   ],
   "PlatformInfo.Generic.MLB": "C0213320014NQ0D1S",
   "PlatformInfo.Generic.ROM": {
