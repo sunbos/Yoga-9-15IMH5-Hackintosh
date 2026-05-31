@@ -172,27 +172,29 @@
   "Booter.Quirks.ProtectUefiServices": true,
   "Booter.Quirks.RebuildAppleMemoryMap": true,
   "Booter.Quirks.SyncRuntimePermissions": true,
-  "DeviceProperties.Add.PciRoot(0x0)/Pci(0x1f,0x3)": {
-    "layout-id": 98
-  },
-  "DeviceProperties.Add.PciRoot(0x0)/Pci(0x2,0x0)": {
-    "AAPL,ig-platform-id": {
-      "__bytes__": "08009b3e"
+  "DeviceProperties.Add": {
+    "PciRoot(0x0)/Pci(0x1f,0x3)": {
+      "layout-id": 98
     },
-    "enable-backlight-registers-alternative-fix": {
-      "__bytes__": "01000000"
-    },
-    "enable-backlight-smoother": {
-      "__bytes__": "01000000"
-    },
-    "enable-max-pixel-clock-override": {
-      "__bytes__": "01000000"
-    },
-    "force-online": {
-      "__bytes__": "01000000"
-    },
-    "framebuffer-patch-enable": {
-      "__bytes__": "01000000"
+    "PciRoot(0x0)/Pci(0x2,0x0)": {
+      "AAPL,ig-platform-id": {
+        "__bytes__": "08009b3e"
+      },
+      "enable-backlight-registers-alternative-fix": {
+        "__bytes__": "01000000"
+      },
+      "enable-backlight-smoother": {
+        "__bytes__": "01000000"
+      },
+      "enable-max-pixel-clock-override": {
+        "__bytes__": "01000000"
+      },
+      "force-online": {
+        "__bytes__": "01000000"
+      },
+      "framebuffer-patch-enable": {
+        "__bytes__": "01000000"
+      }
     }
   },
   "Kernel.Add": [
