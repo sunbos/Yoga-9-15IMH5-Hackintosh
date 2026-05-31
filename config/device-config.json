@@ -56,6 +56,16 @@
       "voodoops2": {"kexts": ["VoodooPS2Controller.kext"]}
     }
   },
+  "opencore": {
+    "current_version": "1.0.7",
+    "repo": "acidanthera/OpenCorePkg",
+    "drivers": [
+      "OpenRuntime.efi",
+      "HfsPlus.efi",
+      "OpenCanopy.efi",
+      "ResetNvramEntry.efi"
+    ]
+  },
   "raw_downloads": {
     "amfipass": {
       "repo": "dortania/OpenCore-Legacy-Patcher",

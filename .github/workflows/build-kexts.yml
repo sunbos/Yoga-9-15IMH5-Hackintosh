@@ -239,8 +239,31 @@ jobs:
           name: prebuilt
           path: build-output/
 
+  check-opencore:
+    runs-on: ubuntu-latest
+    outputs:
+      opencore_updated: ${{ steps.check.outputs.opencore_updated }}
+      opencore_version: ${{ steps.check.outputs.opencore_version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check OpenCore updates
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CURRENT_CONFIG: EFI/OC/config.plist
+          OUTPUT_DIR: build-output/opencore
+        run: python3 scripts/check-opencore.py
+
+      - name: Upload OpenCore artifacts
+        uses: actions/upload-artifact@v5
+        if: steps.check.outputs.opencore_updated == 'true'
+        with:
+          name: opencore
+          path: build-output/opencore/EFI/
+
   release:
-    needs: [build-lilu, build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt]
+    needs: [build-lilu, build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt, check-opencore]
     if: always() && needs.build-lilu.result != 'failure' && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && (needs.build-lilu.result == 'success' || needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success')
     runs-on: ubuntu-latest
     steps:
@@ -258,6 +281,13 @@ jobs:
           pattern: '{airportitlwm,intelbt,applealc,yogasmc,prebuilt}'
           path: all-artifacts
 
+      - name: Download OpenCore artifacts
+        uses: actions/download-artifact@v5
+        if: needs.check-opencore.outputs.opencore_updated == 'true'
+        with:
+          name: opencore
+          path: opencore-artifact
+
       - name: Organize kexts
         run: |
           mkdir -p release/Kexts
@@ -266,11 +296,51 @@ jobs:
           cp -r "USB定制/Tahoe+/不接雷电扩展坞/MacBookPro16,1/USBMap.kext" release/Kexts/ 2>/dev/null || true
           ls -la release/Kexts/
 
+      - name: Assemble EFI
+        run: |
+          mkdir -p release/EFI/BOOT
+          mkdir -p release/EFI/OC/ACPI
+          mkdir -p release/EFI/OC/Drivers
+          mkdir -p release/EFI/OC/Kexts
+
+          # Copy OpenCore files (from artifact if updated, else from repo)
+          if [ -d "opencore-artifact" ]; then
+            cp opencore-artifact/BOOT/BOOTx64.efi release/EFI/BOOT/ 2>/dev/null || true
+            cp opencore-artifact/OC/OpenCore.efi release/EFI/OC/ 2>/dev/null || true
+            cp -r opencore-artifact/OC/Drivers/*.efi release/EFI/OC/Drivers/ 2>/dev/null || true
+          else
+            # Fallback: copy from repo's EFI if exists
+            cp EFI/BOOT/BOOTx64.efi release/EFI/BOOT/ 2>/dev/null || true
+            cp EFI/OC/OpenCore.efi release/EFI/OC/ 2>/dev/null || true
+            cp -r EFI/OC/Drivers/*.efi release/EFI/OC/Drivers/ 2>/dev/null || true
+          fi
+
+          # Copy ACPI (SSDTs)
+          cp patches/ssdt/*.aml release/EFI/OC/ACPI/ 2>/dev/null || true
+
+          # Copy Kexts
+          cp -r release/Kexts/* release/EFI/OC/Kexts/ 2>/dev/null || true
+
+          # Copy config.plist (preserve existing)
+          cp EFI/OC/config.plist release/EFI/OC/ 2>/dev/null || true
+
+          # Copy Resources if exists
+          cp -r EFI/OC/Resources release/EFI/OC/ 2>/dev/null || true
+
+          echo "=== EFI structure ==="
+          find release/EFI -type f | sort | head -50
+
       - name: Create archives
         run: |
           DATE=$(TZ=Asia/Shanghai date +%Y-%m-%d)
           cd release
+
+          # EFI zip
+          zip -r "../Yoga-9-15IMH5-EFI-${DATE}.zip" EFI/
+
+          # Kexts-only zip
           zip -r "../Yoga-9-15IMH5-Kexts-${DATE}.zip" Kexts/
+
           cd Kexts
           for kext in AirportItlwm.kext AppleALC.kext; do
             [ -d "$kext" ] && zip -r "../../${kext%.kext}-${DATE}.zip" "$kext" || true
@@ -330,6 +400,7 @@ jobs:
             **Fork:**
             - HoRNDIS: [TomHeaven/HoRNDIS](https://github.com/TomHeaven/HoRNDIS)
           files: |
+            Yoga-9-15IMH5-EFI-*.zip
             Yoga-9-15IMH5-Kexts-*.zip
             AirportItlwm-*.zip
             IntelBT-*.zip
