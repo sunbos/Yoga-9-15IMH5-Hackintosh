@@ -232,12 +232,11 @@ def _set_nested(d, path, value):
 
 
 def _sync_defaults(sample, config, match_keys=None):
-    """Sync missing fields from sample into config for list items only.
+    """Recursively traverse dicts to find and sync array items.
 
-    Only syncs fields within array items (e.g. ACPI.Add, Kernel.Add,
-    Misc.Tools entries). Does NOT add back top-level dict keys that
-    were intentionally removed by overrides (e.g. DeviceProperties.Add
-    keys, NVRAM.Add GUID keys).
+    Traverses the dict tree, and when both sample and config have a list
+    at the same key, delegates to _sync_list_defaults for field syncing.
+    Does NOT add back top-level dict keys removed by overrides.
     """
     if match_keys is None:
         match_keys = ["Path", "BundlePath", "Name"]
@@ -250,6 +249,21 @@ def _sync_defaults(sample, config, match_keys=None):
             elif isinstance(sample[key], list) and isinstance(config[key], list):
                 _sync_list_defaults(sample[key], config[key], match_keys)
     return config
+
+
+def _sync_item(sample_item, config_item, match_keys):
+    """Sync missing fields from a sample dict item into a config dict item.
+
+    Adds keys present in sample_item but missing in config_item.
+    Recursively handles nested dicts and lists.
+    """
+    for key in sample_item:
+        if key not in config_item:
+            config_item[key] = sample_item[key]
+        elif isinstance(sample_item[key], dict) and isinstance(config_item[key], dict):
+            _sync_item(sample_item[key], config_item[key], match_keys)
+        elif isinstance(sample_item[key], list) and isinstance(config_item[key], list):
+            _sync_list_defaults(sample_item[key], config_item[key], match_keys)
 
 
 def _sync_list_defaults(sample_list, config_list, match_keys):
@@ -275,7 +289,7 @@ def _sync_list_defaults(sample_list, config_list, match_keys):
             for mk in match_keys:
                 if mk in config_item and mk in sample_item:
                     if config_item[mk] == sample_item[mk]:
-                        _sync_defaults(sample_item, config_item, match_keys)
+                        _sync_item(sample_item, config_item, match_keys)
                         synced_templates.append(config_item)
                         matched = True
                         break
