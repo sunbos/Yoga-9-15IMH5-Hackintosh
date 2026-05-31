@@ -254,16 +254,15 @@ def _sync_defaults(sample, config, match_keys=None):
 def _sync_list_defaults(sample_list, config_list, match_keys):
     """Sync defaults for items in a list by matching on match_keys.
 
-    For items matched in sample_list, sync missing fields directly.
-    For unmatched items, borrow field structure from any sample item
-    in the same list (using default values for missing fields).
+    Two-pass approach:
+    1. Match config items to sample items and sync missing fields directly.
+    2. For unmatched items, use the first matched-and-synced item as a
+       template, copying its non-identity fields (everything except
+       match_keys like Name, Path, BundlePath) as sensible defaults.
+       This ensures custom entries (not in Sample.plist) get correct
+       field values like Auxiliary=True instead of type-based defaults.
     """
-    template = None
-    if sample_list:
-        for s in sample_list:
-            if isinstance(s, dict):
-                template = s
-                break
+    synced_templates = []
 
     for config_item in config_list:
         if not isinstance(config_item, dict):
@@ -276,28 +275,16 @@ def _sync_list_defaults(sample_list, config_list, match_keys):
                 if mk in config_item and mk in sample_item:
                     if config_item[mk] == sample_item[mk]:
                         _sync_defaults(sample_item, config_item, match_keys)
+                        synced_templates.append(config_item)
                         matched = True
                         break
             if matched:
                 break
-        if not matched and template is not None:
+        if not matched and synced_templates:
+            template = synced_templates[0]
             for key in template:
-                if key not in config_item:
-                    val = template[key]
-                    if isinstance(val, str):
-                        config_item[key] = ""
-                    elif isinstance(val, bool):
-                        config_item[key] = False
-                    elif isinstance(val, int):
-                        config_item[key] = 0
-                    elif isinstance(val, bytes):
-                        config_item[key] = b""
-                    elif isinstance(val, list):
-                        config_item[key] = []
-                    elif isinstance(val, dict):
-                        config_item[key] = {}
-                    else:
-                        config_item[key] = val
+                if key not in config_item and key not in match_keys:
+                    config_item[key] = template[key]
 
 
 def merge_config(sample_plist_path, overrides_path, output_path):
