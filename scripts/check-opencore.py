@@ -252,22 +252,52 @@ def _sync_defaults(sample, config, match_keys=None):
 
 
 def _sync_list_defaults(sample_list, config_list, match_keys):
-    """Sync defaults for items in a list by matching on match_keys."""
+    """Sync defaults for items in a list by matching on match_keys.
+
+    For items matched in sample_list, sync missing fields directly.
+    For unmatched items, borrow field structure from any sample item
+    in the same list (using default values for missing fields).
+    """
+    template = None
+    if sample_list:
+        for s in sample_list:
+            if isinstance(s, dict):
+                template = s
+                break
+
     for config_item in config_list:
         if not isinstance(config_item, dict):
             continue
+        matched = False
         for sample_item in sample_list:
             if not isinstance(sample_item, dict):
                 continue
-            matched = False
             for mk in match_keys:
                 if mk in config_item and mk in sample_item:
                     if config_item[mk] == sample_item[mk]:
+                        _sync_defaults(sample_item, config_item, match_keys)
                         matched = True
                         break
             if matched:
-                _sync_defaults(sample_item, config_item, match_keys)
                 break
+        if not matched and template is not None:
+            for key in template:
+                if key not in config_item:
+                    val = template[key]
+                    if isinstance(val, str):
+                        config_item[key] = ""
+                    elif isinstance(val, bool):
+                        config_item[key] = False
+                    elif isinstance(val, int):
+                        config_item[key] = 0
+                    elif isinstance(val, bytes):
+                        config_item[key] = b""
+                    elif isinstance(val, list):
+                        config_item[key] = []
+                    elif isinstance(val, dict):
+                        config_item[key] = {}
+                    else:
+                        config_item[key] = val
 
 
 def merge_config(sample_plist_path, overrides_path, output_path):
