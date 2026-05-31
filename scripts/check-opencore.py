@@ -231,10 +231,51 @@ def _set_nested(d, path, value):
     d[keys[-1]] = value
 
 
+def _sync_defaults(sample, config, match_keys=None):
+    """Recursively sync missing fields from sample into config.
+
+    For dict entries: add keys present in sample but missing in config.
+    For list entries: match items by match_keys (e.g. Path, BundlePath, Name),
+    then sync missing fields in each matched dict.
+    """
+    if match_keys is None:
+        match_keys = ["Path", "BundlePath", "Name"]
+    if isinstance(sample, dict) and isinstance(config, dict):
+        for key in sample:
+            if key not in config:
+                config[key] = sample[key]
+            elif isinstance(sample[key], dict) and isinstance(config[key], dict):
+                _sync_defaults(sample[key], config[key], match_keys)
+            elif isinstance(sample[key], list) and isinstance(config[key], list):
+                _sync_list_defaults(sample[key], config[key], match_keys)
+    return config
+
+
+def _sync_list_defaults(sample_list, config_list, match_keys):
+    """Sync defaults for items in a list by matching on match_keys."""
+    for config_item in config_list:
+        if not isinstance(config_item, dict):
+            continue
+        for sample_item in sample_list:
+            if not isinstance(sample_item, dict):
+                continue
+            matched = False
+            for mk in match_keys:
+                if mk in config_item and mk in sample_item:
+                    if config_item[mk] == sample_item[mk]:
+                        matched = True
+                        break
+            if matched:
+                _sync_defaults(sample_item, config_item, match_keys)
+                break
+
+
 def merge_config(sample_plist_path, overrides_path, output_path):
     """Merge Sample.plist with oc-overrides.json to produce config.plist."""
     with open(sample_plist_path, "rb") as f:
-        config = plistlib.load(f)
+        sample = plistlib.load(f)
+
+    config = plistlib.loads(plistlib.dumps(sample, sort_keys=False))
 
     with open(overrides_path) as f:
         overrides_raw = json.load(f)
@@ -246,11 +287,13 @@ def merge_config(sample_plist_path, overrides_path, output_path):
         _set_nested(config, path, value)
         applied += 1
 
+    synced = _sync_defaults(sample, config)
+
     with open(output_path, "wb") as f:
-        plistlib.dump(config, f, sort_keys=False)
+        plistlib.dump(synced, f, sort_keys=False)
 
     print(f"  Merged {applied} overrides into config.plist")
-    return config
+    return synced
 
 
 def diff_configs(old_path, new_config):

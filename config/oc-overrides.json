@@ -588,28 +588,14 @@
   ],
   "Misc.Tools": [
     {
-      "Arguments": "",
-      "Auxiliary": true,
-      "Comment": "",
       "Enabled": false,
-      "Flavour": "Auto",
-      "FullNvramAccess": false,
       "Name": "OpenShell",
-      "Path": "OpenShell.efi",
-      "RealPath": false,
-      "TextMode": false
+      "Path": "OpenShell.efi"
     },
     {
-      "Arguments": "",
-      "Auxiliary": true,
-      "Comment": "",
       "Enabled": false,
-      "Flavour": "Auto",
-      "FullNvramAccess": false,
       "Name": "ControlMsrE2",
-      "Path": "ControlMsrE2.efi",
-      "RealPath": false,
-      "TextMode": false
+      "Path": "ControlMsrE2.efi"
     }
   ],
   "UEFI.Quirks.ReleaseUsbOwnership": true
