@@ -57,7 +57,7 @@
     }
   },
   "opencore": {
-    "current_version": "1.0.7",
+    "current_version": "",
     "repo": "acidanthera/OpenCorePkg",
     "drivers": [
       "OpenRuntime.efi",

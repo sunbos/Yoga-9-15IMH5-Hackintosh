@@ -265,7 +265,7 @@ def main():
     current_version = oc_config.get("current_version", "")
     drivers = oc_config.get("drivers", [])
 
-    print(f"Current OpenCore version: {current_version}")
+    print(f"Last built OpenCore version: {current_version or '(none)'}")
     print(f"Checking {repo} for updates...")
 
     try:
@@ -286,7 +286,10 @@ def main():
 
     is_update = latest_version != current_version
     if is_update:
-        print(f"New version available: {current_version} -> {latest_version}")
+        if current_version:
+            print(f"New version available: {current_version} -> {latest_version}")
+        else:
+            print(f"OpenCore version will be set to: {latest_version}")
 
     # Find RELEASE asset
     asset = None
@@ -349,12 +352,15 @@ def main():
     # Clean up zip
     os.remove(zip_path)
 
-    # Update version in device-config.json if changed
+    # Update version in device-config.json
     if is_update:
         config["opencore"]["current_version"] = latest_version
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
-        print(f"\nUpdated device-config.json: OpenCore {current_version} -> {latest_version}")
+        if current_version:
+            print(f"\nUpdated device-config.json: OpenCore {current_version} -> {latest_version}")
+        else:
+            print(f"\nSet device-config.json: OpenCore version = {latest_version}")
 
     # Output
     output_path = os.environ.get("GITHUB_OUTPUT", "/tmp/opencore-output.txt")
