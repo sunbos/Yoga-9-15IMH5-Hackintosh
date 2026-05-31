@@ -61,20 +61,32 @@ def download_file(url, dest):
 
 
 def download_extra_drivers(extra_drivers, drivers_dir):
-    """Download extra drivers (e.g. HfsPlus.efi, apfs_aligned.efi) from external repos."""
-    for driver_name, repo in extra_drivers.items():
+    """Download extra drivers (e.g. HfsPlus.efi, apfs_aligned.efi) from external repos.
+
+    extra_drivers format:
+      {"DriverName.efi": "repo/name"}  (legacy, root path)
+      {"DriverName.efi": {"repo": "repo/name", "path": "sub/dir"}}  (with path)
+    """
+    for driver_name, source in extra_drivers.items():
         dest = os.path.join(drivers_dir, driver_name)
         if os.path.exists(dest):
             print(f"  Extra driver already present: {driver_name}")
             continue
-        url = f"{GITHUB_API}/{repo}/contents/{driver_name}"
+        if isinstance(source, str):
+            repo = source
+            path = ""
+        else:
+            repo = source["repo"]
+            path = source.get("path", "")
+        api_path = f"{path}/{driver_name}" if path else driver_name
+        url = f"{GITHUB_API}/{repo}/contents/{api_path}"
         try:
             entries = _make_request(url)
             download_url = entries.get("download_url", "")
             if not download_url:
                 print(f"  Warning: no download URL for {driver_name} from {repo}")
                 continue
-            print(f"  Downloading extra driver: {driver_name} from {repo}")
+            print(f"  Downloading extra driver: {driver_name} from {repo}/{api_path}")
             download_file(download_url, dest)
         except Exception as e:
             print(f"  Warning: failed to download {driver_name} from {repo}: {e}")

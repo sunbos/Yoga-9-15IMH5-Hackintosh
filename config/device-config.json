@@ -67,8 +67,8 @@
       "apfs_aligned.efi"
     ],
     "extra_drivers": {
-      "HfsPlus.efi": "acidanthera/OcBinaryData",
-      "apfs_aligned.efi": "acidanthera/OcBinaryData"
+      "HfsPlus.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"},
+      "apfs_aligned.efi": {"repo": "acidanthera/OcBinaryData", "path": "Drivers"}
     }
   },
   "raw_downloads": {
