@@ -60,6 +60,90 @@ def download_file(url, dest):
             shutil.copyfileobj(resp, f)
 
 
+def download_extra_drivers(extra_drivers, drivers_dir):
+    """Download extra drivers (e.g. HfsPlus.efi, apfs_aligned.efi) from external repos."""
+    for driver_name, repo in extra_drivers.items():
+        dest = os.path.join(drivers_dir, driver_name)
+        if os.path.exists(dest):
+            print(f"  Extra driver already present: {driver_name}")
+            continue
+        url = f"{GITHUB_API}/{repo}/contents/{driver_name}"
+        try:
+            entries = _make_request(url)
+            download_url = entries.get("download_url", "")
+            if not download_url:
+                print(f"  Warning: no download URL for {driver_name} from {repo}")
+                continue
+            print(f"  Downloading extra driver: {driver_name} from {repo}")
+            download_file(download_url, dest)
+        except Exception as e:
+            print(f"  Warning: failed to download {driver_name} from {repo}: {e}")
+
+
+def download_resources(output_dir):
+    """Download OpenCanopy Resources (Font, Image, Label) from OcBinaryData."""
+    repo = "acidanthera/OcBinaryData"
+    resource_dirs = ["Font", "Image", "Label"]
+    resources_base = os.path.join(output_dir, "EFI", "OC", "Resources")
+
+    for res_dir in resource_dirs:
+        local_dir = os.path.join(resources_base, res_dir)
+        if os.path.isdir(local_dir) and os.listdir(local_dir):
+            print(f"  Resources/{res_dir} already present, skipping download")
+            continue
+
+        api_url = f"{GITHUB_API}/{repo}/contents/Resources/{res_dir}"
+        try:
+            entries = _make_request(api_url)
+            if not isinstance(entries, list):
+                print(f"  Warning: unexpected response for Resources/{res_dir}")
+                continue
+            os.makedirs(local_dir, exist_ok=True)
+            for entry in entries:
+                if entry.get("type") != "file":
+                    continue
+                name = entry["name"]
+                download_url = entry.get("download_url", "")
+                if not download_url:
+                    continue
+                dest = os.path.join(local_dir, name)
+                print(f"  Downloading Resources/{res_dir}/{name}")
+                download_file(download_url, dest)
+        except Exception as e:
+            print(f"  Warning: failed to download Resources/{res_dir}: {e}")
+
+    # Download Image subdirectories (e.g. Acidanthera/GoldenGate)
+    image_dir = os.path.join(resources_base, "Image")
+    if os.path.isdir(image_dir) and not any(
+        os.path.isdir(os.path.join(image_dir, d)) for d in os.listdir(image_dir)
+    ):
+        _download_resource_subdir(repo, "Resources/Image", image_dir)
+
+
+def _download_resource_subdir(repo, api_path, local_dir):
+    """Recursively download resource directories from a GitHub repo."""
+    api_url = f"{GITHUB_API}/{repo}/contents/{api_path}"
+    try:
+        entries = _make_request(api_url)
+        if not isinstance(entries, list):
+            return
+        for entry in entries:
+            name = entry["name"]
+            if entry.get("type") == "dir":
+                sub_local = os.path.join(local_dir, name)
+                os.makedirs(sub_local, exist_ok=True)
+                _download_resource_subdir(repo, f"{api_path}/{name}", sub_local)
+            elif entry.get("type") == "file":
+                download_url = entry.get("download_url", "")
+                if download_url:
+                    dest = os.path.join(local_dir, name)
+                    if not os.path.exists(dest):
+                        print(f"  Downloading {api_path}/{name}")
+                        download_file(download_url, dest)
+    except Exception as e:
+        print(f"  Warning: failed to download {api_path}: {e}")
+
+
 def extract_opencore(zip_path, output_dir, drivers):
     """Extract OpenCore files from the RELEASE zip."""
     with zipfile.ZipFile(zip_path) as zf:
@@ -215,6 +299,17 @@ def main():
     # Extract
     print("Extracting OpenCore files...")
     extract_opencore(zip_path, output_dir, drivers)
+
+    # Download extra drivers (e.g. HfsPlus.efi, apfs_aligned.efi)
+    extra_drivers = oc_config.get("extra_drivers", {})
+    if extra_drivers:
+        drivers_dir = os.path.join(output_dir, "EFI", "OC", "Drivers")
+        print("Downloading extra drivers...")
+        download_extra_drivers(extra_drivers, drivers_dir)
+
+    # Download OpenCanopy Resources (Font, Image, Label)
+    print("Downloading OpenCanopy Resources...")
+    download_resources(output_dir)
 
     # Merge Sample.plist with overrides → config.plist
     sample_plist = os.path.join(output_dir, "Sample.plist")

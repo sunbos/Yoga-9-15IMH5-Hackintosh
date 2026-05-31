@@ -50,7 +50,7 @@
     "asset_pattern": "ClayMoreBoy-Hackintosh-Kext-*.zip",
     "kexts": {
       "whatevergreen": {"kexts": ["WhateverGreen.kext"]},
-      "virtualsmc": {"kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext", "SMCLightSensor.kext"]},
+      "virtualsmc": {"kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext"]},
       "restrictevents": {"kexts": ["RestrictEvents.kext"]},
       "nvmefix": {"kexts": ["NVMeFix.kext"]},
       "voodoops2": {"kexts": ["VoodooPS2Controller.kext"]}
@@ -63,8 +63,13 @@
       "OpenRuntime.efi",
       "HfsPlus.efi",
       "OpenCanopy.efi",
-      "ResetNvramEntry.efi"
-    ]
+      "ResetNvramEntry.efi",
+      "apfs_aligned.efi"
+    ],
+    "extra_drivers": {
+      "HfsPlus.efi": "acidanthera/OcBinaryData",
+      "apfs_aligned.efi": "acidanthera/OcBinaryData"
+    }
   },
   "raw_downloads": {
     "amfipass": {

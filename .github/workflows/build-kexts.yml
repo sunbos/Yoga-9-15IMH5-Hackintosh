@@ -322,14 +322,22 @@ jobs:
           cp -r release/Kexts/* release/EFI/OC/Kexts/ 2>/dev/null || true
 
           # Copy config.plist (from opencore artifact if available, else from repo)
-          if [ -f "opencore-artifact/EFI/OC/config.plist" ]; then
+          if [ -f "opencore-artifact/OC/config.plist" ]; then
+            cp opencore-artifact/OC/config.plist release/EFI/OC/
+          elif [ -f "opencore-artifact/EFI/OC/config.plist" ]; then
             cp opencore-artifact/EFI/OC/config.plist release/EFI/OC/
           else
             cp EFI/OC/config.plist release/EFI/OC/ 2>/dev/null || true
           fi
 
-          # Copy Resources if exists
-          cp -r EFI/OC/Resources release/EFI/OC/ 2>/dev/null || true
+          # Copy Resources (from opencore artifact if available, else from repo)
+          if [ -d "opencore-artifact/OC/Resources" ]; then
+            cp -r opencore-artifact/OC/Resources release/EFI/OC/
+          elif [ -d "opencore-artifact/EFI/OC/Resources" ]; then
+            cp -r opencore-artifact/EFI/OC/Resources release/EFI/OC/
+          else
+            cp -r EFI/OC/Resources release/EFI/OC/ 2>/dev/null || true
+          fi
 
           echo "=== EFI structure ==="
           find release/EFI -type f | sort | head -50
