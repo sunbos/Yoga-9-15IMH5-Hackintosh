@@ -232,18 +232,19 @@ def _set_nested(d, path, value):
 
 
 def _sync_defaults(sample, config, match_keys=None):
-    """Recursively sync missing fields from sample into config.
+    """Sync missing fields from sample into config for list items only.
 
-    For dict entries: add keys present in sample but missing in config.
-    For list entries: match items by match_keys (e.g. Path, BundlePath, Name),
-    then sync missing fields in each matched dict.
+    Only syncs fields within array items (e.g. ACPI.Add, Kernel.Add,
+    Misc.Tools entries). Does NOT add back top-level dict keys that
+    were intentionally removed by overrides (e.g. DeviceProperties.Add
+    keys, NVRAM.Add GUID keys).
     """
     if match_keys is None:
         match_keys = ["Path", "BundlePath", "Name"]
     if isinstance(sample, dict) and isinstance(config, dict):
         for key in sample:
             if key not in config:
-                config[key] = sample[key]
+                continue
             elif isinstance(sample[key], dict) and isinstance(config[key], dict):
                 _sync_defaults(sample[key], config[key], match_keys)
             elif isinstance(sample[key], list) and isinstance(config[key], list):
