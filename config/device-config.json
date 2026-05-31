@@ -43,14 +43,15 @@
     "brcmpatchram": {"repo": "acidanthera/BrcmPatchRAM", "kexts": ["BlueToolFixup.kext"]},
     "voodooi2c": {"repo": "VoodooI2C/VoodooI2C", "kexts": ["VoodooI2C.kext", "VoodooI2CHID.kext"]},
     "ecenabler": {"repo": "1Revenger1/ECEnabler", "kexts": ["ECEnabler.kext"]},
-    "horndis": {"repo": "TomHeaven/HoRNDIS", "tag": "rel9.3_2", "kexts": ["HoRNDIS.kext"]}
+    "horndis": {"repo": "TomHeaven/HoRNDIS", "tag": "rel9.3_2", "kexts": ["HoRNDIS.kext"]},
+    "brightnesskeys": {"repo": "acidanthera/BrightnessKeys", "kexts": ["BrightnessKeys.kext"]}
   },
   "nightly_builds": {
     "repo": "ClayMoreBoy/Hackintosh-Kext-Factory",
     "asset_pattern": "ClayMoreBoy-Hackintosh-Kext-*.zip",
     "kexts": {
       "whatevergreen": {"kexts": ["WhateverGreen.kext"]},
-      "virtualsmc": {"kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext", "SMCSuperIO.kext"]},
+      "virtualsmc": {"kexts": ["VirtualSMC.kext", "SMCBatteryManager.kext", "SMCProcessor.kext"]},
       "restrictevents": {"kexts": ["RestrictEvents.kext"]},
       "nvmefix": {"kexts": ["NVMeFix.kext"]},
       "voodoops2": {"kexts": ["VoodooPS2Controller.kext"]}

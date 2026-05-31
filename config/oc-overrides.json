@@ -1,68 +1,86 @@
 {
   "ACPI.Add": [
     {
-      "Comment": "SSDT-SBUS.aml",
-      "Enabled": true,
-      "Path": "SSDT-SBUS.aml"
-    },
-    {
-      "Comment": "SSDT-Disable_GPU_PEG0.aml",
-      "Enabled": true,
-      "Path": "SSDT-dGPU-Off.aml"
-    },
-    {
-      "Comment": "SSDT-MCHC.aml",
-      "Enabled": true,
-      "Path": "SSDT-MCHC.aml"
-    },
-    {
-      "Comment": "SSDT-PLUG.aml",
+      "Comment": "SSDT-PLUG",
       "Enabled": true,
       "Path": "SSDT-PLUG.aml"
     },
     {
-      "Comment": "SSDT-PNLF.aml",
+      "Comment": "SSDT-EC-USBX-LAPTOP",
       "Enabled": true,
-      "Path": "SSDT-PNLF.aml"
+      "Path": "SSDT-EC-USBX-LAPTOP.aml"
     },
     {
-      "Comment": "SSDT-BRTN.aml",
-      "Enabled": true,
-      "Path": "SSDT-BRTN.aml"
-    },
-    {
-      "Comment": "SSDT-RTCAWAC.aml",
+      "Comment": "SSDT-AWAC",
       "Enabled": true,
       "Path": "SSDT-AWAC.aml"
     },
     {
-      "Comment": "SSDT-USB-Reset.aml",
+      "Comment": "SSDT-dGPU-Off",
       "Enabled": true,
-      "Path": "SSDT-USB-Reset.aml"
+      "Path": "SSDT-dGPU-Off.aml"
     },
     {
-      "Comment": "SSDT-XOSI.aml",
+      "Comment": "SSDT-PNLF",
+      "Enabled": true,
+      "Path": "SSDT-PNLF.aml"
+    },
+    {
+      "Comment": "SSDT-XOSI",
       "Enabled": true,
       "Path": "SSDT-XOSI.aml"
     },
     {
-      "Comment": "SSDT-ECRW.aml",
+      "Comment": "SSDT-ECRW",
       "Enabled": true,
       "Path": "SSDT-ECRW.aml"
     },
     {
-      "Comment": "SSDT-RCSM.aml",
+      "Comment": "SSDT-RCSM",
       "Enabled": true,
       "Path": "SSDT-RCSM.aml"
     },
     {
-      "Comment": "EC + USB power properties for Skylake+ laptop",
+      "Comment": "SSDT-Brightness",
       "Enabled": true,
-      "Path": "SSDT-EC-USBX-LAPTOP.aml"
+      "Path": "SSDT-Brightness.aml"
+    },
+    {
+      "Comment": "SSDT-SBUS-MCHC",
+      "Enabled": true,
+      "Path": "SSDT-SBUS-MCHC.aml"
     }
   ],
   "ACPI.Delete": [],
   "ACPI.Patch": [
+    {
+      "Base": "",
+      "BaseSkip": 0,
+      "Comment": "_OSI to XOSI rename - requires SSDT-XOSI.aml",
+      "Count": 0,
+      "Enabled": true,
+      "Find": {
+        "__bytes__": "5f4f5349"
+      },
+      "Limit": 0,
+      "Mask": {
+        "__bytes__": ""
+      },
+      "OemTableId": {
+        "__bytes__": ""
+      },
+      "Replace": {
+        "__bytes__": "584f5349"
+      },
+      "ReplaceMask": {
+        "__bytes__": ""
+      },
+      "Skip": 0,
+      "TableLength": 0,
+      "TableSignature": {
+        "__bytes__": ""
+      }
+    },
     {
       "Base": "",
       "BaseSkip": 0,
@@ -146,34 +164,6 @@
       "TableSignature": {
         "__bytes__": ""
       }
-    },
-    {
-      "Base": "",
-      "BaseSkip": 0,
-      "Comment": "_OSI to XOSI rename - requires SSDT-XOSI.aml",
-      "Count": 0,
-      "Enabled": true,
-      "Find": {
-        "__bytes__": "5f4f5349"
-      },
-      "Limit": 0,
-      "Mask": {
-        "__bytes__": ""
-      },
-      "OemTableId": {
-        "__bytes__": ""
-      },
-      "Replace": {
-        "__bytes__": "584f5349"
-      },
-      "ReplaceMask": {
-        "__bytes__": ""
-      },
-      "Skip": 0,
-      "TableLength": 0,
-      "TableSignature": {
-        "__bytes__": ""
-      }
     }
   ],
   "Booter.MmioWhitelist": [],
@@ -228,16 +218,6 @@
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "SMCBatteryManager.kext",
-      "Comment": "V1.3.8",
-      "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/SMCBatteryManager",
-      "MaxKernel": "",
-      "MinKernel": "",
-      "PlistPath": "Contents/Info.plist"
-    },
-    {
-      "Arch": "x86_64",
       "BundlePath": "SMCProcessor.kext",
       "Comment": "V1.3.8",
       "Enabled": true,
@@ -248,10 +228,10 @@
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "SMCSuperIO.kext",
+      "BundlePath": "SMCBatteryManager.kext",
       "Comment": "V1.3.8",
       "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/SMCSuperIO",
+      "ExecutablePath": "Contents/MacOS/SMCBatteryManager",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
@@ -278,20 +258,20 @@
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "AMFIPass.kext",
-      "Comment": "V1.4.1",
-      "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/AMFIPass",
-      "MaxKernel": "",
-      "MinKernel": "20.0.0",
-      "PlistPath": "Contents/Info.plist"
-    },
-    {
-      "Arch": "x86_64",
       "BundlePath": "RestrictEvents.kext",
       "Comment": "V1.1.7",
       "Enabled": true,
       "ExecutablePath": "Contents/MacOS/RestrictEvents",
+      "MaxKernel": "",
+      "MinKernel": "",
+      "PlistPath": "Contents/Info.plist"
+    },
+    {
+      "Arch": "x86_64",
+      "BundlePath": "BrightnessKeys.kext",
+      "Comment": "V1.0.3",
+      "Enabled": true,
+      "ExecutablePath": "Contents/MacOS/BrightnessKeys",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
@@ -314,6 +294,16 @@
       "ExecutablePath": "Contents/MacOS/YogaSMC",
       "MaxKernel": "",
       "MinKernel": "",
+      "PlistPath": "Contents/Info.plist"
+    },
+    {
+      "Arch": "x86_64",
+      "BundlePath": "NVMeFix.kext",
+      "Comment": "V1.1.4",
+      "Enabled": true,
+      "ExecutablePath": "Contents/MacOS/NVMeFix",
+      "MaxKernel": "",
+      "MinKernel": "18.0.0",
       "PlistPath": "Contents/Info.plist"
     },
     {
@@ -388,6 +378,16 @@
     },
     {
       "Arch": "x86_64",
+      "BundlePath": "AMFIPass.kext",
+      "Comment": "V1.4.1",
+      "Enabled": true,
+      "ExecutablePath": "Contents/MacOS/AMFIPass",
+      "MaxKernel": "",
+      "MinKernel": "20.0.0",
+      "PlistPath": "Contents/Info.plist"
+    },
+    {
+      "Arch": "x86_64",
       "BundlePath": "IOSkywalkFamily.kext",
       "Comment": "V1.0",
       "Enabled": true,
@@ -418,20 +418,20 @@
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "IntelBTPatcher.kext",
+      "BundlePath": "IntelBluetoothFirmware.kext",
       "Comment": "V2.5.0",
       "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/IntelBTPatcher",
+      "ExecutablePath": "Contents/MacOS/IntelBluetoothFirmware",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
     },
     {
       "Arch": "x86_64",
-      "BundlePath": "IntelBluetoothFirmware.kext",
+      "BundlePath": "IntelBTPatcher.kext",
       "Comment": "V2.5.0",
       "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/IntelBluetoothFirmware",
+      "ExecutablePath": "Contents/MacOS/IntelBTPatcher",
       "MaxKernel": "",
       "MinKernel": "",
       "PlistPath": "Contents/Info.plist"
@@ -454,16 +454,6 @@
       "ExecutablePath": "Contents/MacOS/HoRNDIS",
       "MaxKernel": "",
       "MinKernel": "",
-      "PlistPath": "Contents/Info.plist"
-    },
-    {
-      "Arch": "x86_64",
-      "BundlePath": "NVMeFix.kext",
-      "Comment": "V1.1.4",
-      "Enabled": true,
-      "ExecutablePath": "Contents/MacOS/NVMeFix",
-      "MaxKernel": "",
-      "MinKernel": "18.0.0",
       "PlistPath": "Contents/Info.plist"
     },
     {
@@ -499,26 +489,13 @@
   "Misc.Boot.HideAuxiliary": false,
   "Misc.Boot.PickerMode": "External",
   "Misc.Debug.DisableWatchDog": true,
+  "Misc.Debug.Target": 0,
+  "Misc.Debug.DisplayLevel": 0,
+  "Misc.Debug.LogModules": "",
   "Misc.Security.AllowSetDefault": true,
   "Misc.Security.ScanPolicy": 0,
   "Misc.Security.SecureBootModel": "Disabled",
   "Misc.Security.Vault": "Optional",
-  "Misc.Serial.Custom": {
-    "BaudRate": 115200,
-    "ClockRate": 1843200,
-    "DetectCable": false,
-    "ExtendedTxFifoSize": 64,
-    "FifoControl": 7,
-    "LineControl": 3,
-    "PciDeviceInfo": {
-      "__bytes__": "ff"
-    },
-    "RegisterAccessWidth": 8,
-    "RegisterBase": 1016,
-    "RegisterStride": 1,
-    "UseHardwareFlowControl": false,
-    "UseMmio": false
-  },
   "NVRAM.Add.4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102.revpatch": "sbvmm",
   "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.boot-args": "-amfipassbeta",
   "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.csr-active-config": {

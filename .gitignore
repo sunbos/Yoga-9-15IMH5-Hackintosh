@@ -22,3 +22,4 @@ extracted_kexts/
 
 # Claude Code
 CLAUDE.md
+.claude/
