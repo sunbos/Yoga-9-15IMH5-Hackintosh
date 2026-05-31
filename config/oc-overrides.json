@@ -167,6 +167,7 @@
     }
   ],
   "Booter.MmioWhitelist": [],
+  "Booter.Patch": [],
   "Booter.Quirks.DevirtualiseMmio": true,
   "Booter.Quirks.EnableWriteUnprotector": false,
   "Booter.Quirks.ProtectUefiServices": true,
@@ -498,13 +499,25 @@
   "Misc.Security.ScanPolicy": 0,
   "Misc.Security.SecureBootModel": "Disabled",
   "Misc.Security.Vault": "Optional",
-  "NVRAM.Add.4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102.revpatch": "sbvmm",
-  "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.boot-args": "-amfipassbeta",
-  "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.csr-active-config": {
-    "__bytes__": "03080000"
+  "NVRAM.Add.4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102": {
+    "revpatch": "sbvmm",
+    "rtc-blacklist": {
+      "__bytes__": ""
+    }
   },
-  "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.prev-lang:kbd": {
-    "__bytes__": ""
+  "NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82": {
+    "ForceDisplayRotationInEFI": 0,
+    "SystemAudioVolume": {
+      "__bytes__": "46"
+    },
+    "boot-args": "-amfipassbeta",
+    "csr-active-config": {
+      "__bytes__": "03080000"
+    },
+    "prev-lang:kbd": {
+      "__bytes__": ""
+    },
+    "run-efi-updater": "No"
   },
   "NVRAM.Delete.4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102": [
     "rtc-blacklist",
