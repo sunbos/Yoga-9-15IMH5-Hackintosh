@@ -8,13 +8,22 @@ import sys
 
 def minimize_firmware(source_dir, firmware_prefix):
     fw_dir = os.path.join(source_dir, "IntelBluetoothFirmware", "fw")
+    
+    # AX201 (hw_variant=0x13) only needs ibt-19-16-0.{sfi,ddc} on cold boot
+    # ibt-19-16-0.* doesn't exist in upstream, so we copy from ibt-19-16-4.*
+    # All other ibt-19-* variants are not needed for this specific hardware
+    required_files = {
+        "ibt-19-16-4.sfi",  # source for alias
+        "ibt-19-16-4.ddc",  # source for alias
+    }
+    
     for f in os.listdir(fw_dir):
-        if not f.startswith(firmware_prefix):
+        if f not in required_files:
             os.remove(os.path.join(fw_dir, f))
     kept = [f for f in os.listdir(fw_dir) if f.startswith(firmware_prefix)]
-    print(f"Firmware minimized: kept {len(kept)} files with prefix '{firmware_prefix}'")
+    print(f"Firmware minimized: kept {len(kept)} files")
 
-    # Create symlinks/copies for missing firmware variants
+    # Create copies for missing firmware variants
     # AX201 (hw_variant=0x13) needs ibt-19-16-0.sfi but it doesn't exist in upstream
     # Linux kernel bug: https://bugzilla.kernel.org/show_bug.cgi?id=215187
     # Workaround: copy ibt-19-16-4.* as ibt-19-16-0.*
@@ -28,6 +37,16 @@ def minimize_firmware(source_dir, firmware_prefix):
         if os.path.exists(src_path) and not os.path.exists(dst_path):
             shutil.copy2(src_path, dst_path)
             print(f"Created firmware alias: {src_name} -> {dst_name}")
+    
+    # Remove source files that were only needed for alias creation
+    for src_name in alias_map:
+        src_path = os.path.join(fw_dir, src_name)
+        if os.path.exists(src_path):
+            os.remove(src_path)
+            print(f"Removed alias source: {src_name}")
+    
+    final = [f for f in os.listdir(fw_dir) if f.startswith(firmware_prefix)]
+    print(f"Final firmware files: {sorted(final)}")
 
 def clean_cache(source_dir):
     for path in [
