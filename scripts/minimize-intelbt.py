@@ -121,5 +121,17 @@ def main():
         shutil.copytree(kext_path, dest)
         print(f"Output: {dest}")
 
+    fw_dest = os.path.join(output_dir, "IntelBluetoothFirmware.kext", "Contents", "Resources")
+    fw_source = os.path.join(source_dir, "IntelBluetoothFirmware", "fw")
+    if os.path.isdir(fw_source):
+        os.makedirs(fw_dest, exist_ok=True)
+        for f in os.listdir(fw_source):
+            if f.startswith(firmware_prefix):
+                shutil.copy2(os.path.join(fw_source, f), os.path.join(fw_dest, f))
+        copied = len(os.listdir(fw_dest)) if os.path.isdir(fw_dest) else 0
+        print(f"Firmware files copied to kext Resources: {copied}")
+    else:
+        print("WARNING: firmware source directory not found")
+
 if __name__ == "__main__":
     main()
