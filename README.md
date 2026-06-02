@@ -123,55 +123,25 @@ GitHub Actions 每周一自动检查上游更新并构建。详见 `.github/work
 └── USB定制/                    # USB 端口映射
 ```
 
-## Intel AX201 蓝牙配置详解
+## Intel AX201 蓝牙配置
 
-### 硬件参数（ioreg 实测值）
+### 硬件参数
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| USB VID | 0x8087 (32903) | Intel |
-| USB PID | 0x0026 (38) | AX201 Bluetooth |
-| hw_variant | 0x13 (19) | HrP (Harrison Peak) = AX201 |
-| hw_platform | 0x37 (55) | Gen3 平台 |
-| hw_revision | 0x10 (16) | 硬件修订版 |
-| fw_variant | 0x06 (bootloader) / 0x23 (operational) | 冷启动=bootloader, 热重启=operational |
-| 固件名 | ibt-19-16-0.sfi | 基于 hw_variant + hw_revision + fw_revision |
-| 固件名格式 | ibt-{hw_variant}-{hw_revision}-{fw_revision}.sfi | Gen2 风格（hw_variant >= 0x11） |
+| 参数 | 值 |
+|------|-----|
+| USB VID/PID | 0x8087:0x0026 |
+| hw_variant | 0x13 (HrP = AX201) |
+| hw_platform | 0x37 (Gen3) |
+| 冷启动固件 | ibt-19-16-0.sfi（上游不存在，从 ibt-19-16-4.sfi 复制） |
 
-### macOS Tahoe 蓝牙必需配置
+### macOS Tahoe 必需配置
 
 | 项目 | 值 | 说明 |
 |------|-----|------|
-| IntelBluetoothFirmware.kext | v2.5.0+ | 固件加载（未精简版，需包含 ibt-19-* 固件） |
-| IntelBTPatcher.kext | v2.5.0+ | 运行时补丁（修复 LE Scan 崩溃） |
-| BlueToolFixup.kext | v2.7.2+ | 替代 IntelBluetoothInjector（Monterey+ 必需） |
-| IntelBluetoothInjector.kext | **不要使用** | Monterey+ 不需要，会导致冲突 |
-| boot-args | `-amfipassbeta -ibtcompatbeta` | `-ibtcompatbeta` 让 IntelBTPatcher 在 beta macOS 上加载（Dortania 官方推荐）；`-amfipassbeta` 让 AMFIPass 在 beta macOS 上加载 |
-| NVRAM bluetoothInternalControllerInfo | 16字节全零 | bluetoothd 识别内部蓝牙控制器必需 |
-| NVRAM bluetoothExternalDongleFailed | 0x00 | 防止回退到 BCM_4350C2 虚拟芯片 |
-
-### 蓝牙不工作的根本原因
-
-**NVRAM 缺少 `bluetoothInternalControllerInfo` 和 `bluetoothExternalDongleFailed`**。
-
-`bluetoothd` 启动流程：
-1. 查找 USB 蓝牙设备 → 找到 Intel AX201 (VID=0x8087, PID=0x0026)
-2. 检查 `bluetoothInternalControllerInfo` → **缺失时**判定 "Internal controller info missing"
-3. 检查 `bluetoothExternalDongleFailed` → **缺失时**判定 "External dongle not found"
-4. 回退到 BCM_4350C2 虚拟芯片 → 蓝牙无法工作
-
-修复：在 config.plist 的 NVRAM Add (7C436110-AB2A-4BBB-A880-FE41995C9F82) 中添加：
-```xml
-<key>bluetoothExternalDongleFailed</key>
-<data>AA==</data>
-<key>bluetoothInternalControllerInfo</key>
-<data>AAAAAAAAAAAAAAAAAAA=</data>
-```
-
-### 排查过程中走过的弯路
-
-1. **精简版固件缺失（假问题）**：`minimize-intelbt.py` 的 `firmware_prefix` 为 `"ibt-18-"`，但 AX201 对应 `ibt-19-*`。实际上 AX201 在 bootloader 模式下固件会被重新上传，operational 模式下固件已加载，都不影响蓝牙是否工作。
-
-2. **修改 IntelBluetoothFirmware 源码（非必要）**：`IntelBluetoothOpsGen3::setup()` 中有 TODO workaround bug，当 `INTEL_HW_PLATFORM != 0x37` 时直接 `return true` 不设置 `loadedFirmwareName`。但实际测试发现 AX201 走的是 legacy bootloader 路径（`actLen=10=sizeof(IntelVersion)`），不经过 TLV/Gen3 路径。`loadedFirmwareName` 为空不影响蓝牙工作。
-
-3. **误加 IntelBluetoothInjector（方向性错误）**：macOS Monterey+ 明确不需要 IntelBluetoothInjector，需要的是 `BlueToolFixup.kext`。两者同时启用会冲突。
+| IntelBluetoothFirmware.kext | 精简版，仅含 ibt-19-16-0.{sfi,ddc} | 冷启动固件加载 |
+| IntelBTPatcher.kext | v2.5.0+ | 修复 LE Scan 崩溃 |
+| BlueToolFixup.kext | v2.7.2+ | Monterey+ 必需，替代 IntelBluetoothInjector |
+| IntelBluetoothInjector.kext | **不要使用** | Monterey+ 会导致冲突 |
+| boot-args | `-amfipassbeta -ibtcompatbeta` | beta macOS 兼容 |
+| NVRAM bluetoothInternalControllerInfo | 14字节全零 (`AAAAAAAAAAAAAAAAAAA=`) | bluetoothd 识别内部控制器必需 |
+| NVRAM bluetoothExternalDongleFailed | 0x00 (`AA==`) | 防止回退到 BCM_4350C2 |
