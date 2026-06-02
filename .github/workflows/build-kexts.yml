@@ -399,7 +399,7 @@ jobs:
 
             **Self-compiled (from upstream master):**
             - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
-            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) from [lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware) (Tahoe-compatible fork)
+            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-19-*) from [lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware) (Tahoe-compatible fork)
             - IntelBTPatcher: with built-in BLE fix (from lshbluesky fork)
             - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)

@@ -9,8 +9,10 @@
     "usb_id_product": 38,
     "usb_id_vendor": 32903,
     "personality_suffix": "0026",
-    "firmware_prefix": "ibt-18-",
-    "hw_variant": "0x12",
+    "firmware_prefix": "ibt-19-",
+    "hw_variant": "0x13",
+    "hw_platform": "0x37",
+    "hw_revision": "0x10",
     "upstream_repo": "lshbluesky/IntelBluetoothFirmware",
     "patches": []
   },
