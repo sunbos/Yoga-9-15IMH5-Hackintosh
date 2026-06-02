@@ -11,10 +11,8 @@
     "personality_suffix": "0026",
     "firmware_prefix": "ibt-18-",
     "hw_variant": "0x12",
-    "upstream_repo": "OpenIntelWireless/IntelBluetoothFirmware",
-    "patches": [
-      "patches/intelbt/0001-IntelBTPatcher-Fix-BLE-devices.patch"
-    ]
+    "upstream_repo": "lshbluesky/IntelBluetoothFirmware",
+    "patches": []
   },
   "audio": {
     "codec": "ALC298",
@@ -24,7 +22,7 @@
   },
   "upstream_repos": {
     "itlwm": "OpenIntelWireless/itlwm",
-    "intelbt": "OpenIntelWireless/IntelBluetoothFirmware",
+    "intelbt": "lshbluesky/IntelBluetoothFirmware",
     "applealc": "acidanthera/AppleALC",
     "lilu": "acidanthera/Lilu",
     "whatevergreen": "acidanthera/WhateverGreen",

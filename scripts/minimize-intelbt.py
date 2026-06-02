@@ -131,7 +131,7 @@ def main():
         copied = len(os.listdir(fw_dest)) if os.path.isdir(fw_dest) else 0
         print(f"Firmware files copied to kext Resources: {copied}")
     else:
-        print("WARNING: firmware source directory not found")
+        print("WARNING: firmware source directory not found, skipping firmware copy (firmware is embedded in binary)")
 
 if __name__ == "__main__":
     main()

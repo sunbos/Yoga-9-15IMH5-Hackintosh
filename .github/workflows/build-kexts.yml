@@ -123,7 +123,8 @@ jobs:
 
       - name: Clone IntelBluetoothFirmware
         run: |
-          git clone --depth 1 https://github.com/OpenIntelWireless/IntelBluetoothFirmware.git
+          INTELBT_REPO=$(python3 -c "import json; print(json.load(open('${{ env.CONFIG_PATH }}'))['bluetooth']['upstream_repo'])")
+          git clone --depth 1 "https://github.com/${INTELBT_REPO}.git" IntelBluetoothFirmware
           cp -R /tmp/mackernelsdk IntelBluetoothFirmware/MacKernelSDK
           cp -R /tmp/lilu-sdk/Lilu.kext IntelBluetoothFirmware/
 
@@ -398,8 +399,8 @@ jobs:
 
             **Self-compiled (from upstream master):**
             - AirportItlwm: minimized (IOPCIMatch=0x06F08086, firmware=QuZ-a0-hr-b0-68)
-            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) + BLE fix patch
-            - IntelBTPatcher: with BLE fix patch
+            - IntelBluetoothFirmware: minimized (personality=_0026, firmware=ibt-18-*) from [lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware) (Tahoe-compatible fork)
+            - IntelBTPatcher: with built-in BLE fix (from lshbluesky fork)
             - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)
 
