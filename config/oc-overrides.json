@@ -514,7 +514,7 @@
       "__bytes__": "00"
     },
     "bluetoothInternalControllerInfo": {
-      "__bytes__": "00000000000000000000000000000000"
+      "__bytes__": "0000000000000000000000000000"
     },
     "boot-args": "-amfipassbeta -ibtcompatbeta",
     "csr-active-config": {
