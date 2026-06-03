@@ -488,7 +488,6 @@
   "Kernel.Quirks.PanicNoKextDump": true,
   "Kernel.Quirks.PowerTimeoutKernelPanic": true,
   "Misc.Entries": [],
-  "Misc.Tools": [],
   "Misc.Boot.HideAuxiliary": false,
   "Misc.Boot.PickerMode": "External",
   "Misc.Debug.DisableWatchDog": true,

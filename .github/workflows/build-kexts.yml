@@ -18,6 +18,10 @@ concurrency:
   group: build-kexts
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  actions: read
+
 env:
   CONFIG_PATH: config/device-config.json
   SHA_PATH: last-build-sha.json
@@ -265,8 +269,11 @@ jobs:
 
   release:
     needs: [build-lilu, build-wifi, build-bt, build-alc, build-yogasmc, download-prebuilt, check-opencore]
-    if: always() && needs.build-lilu.result != 'failure' && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && (needs.build-lilu.result == 'success' || needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success')
+    if: always() && needs.build-lilu.result != 'failure' && needs.build-wifi.result != 'failure' && needs.build-bt.result != 'failure' && needs.build-alc.result != 'failure' && needs.build-yogasmc.result != 'failure' && needs.download-prebuilt.result != 'failure' && needs.check-opencore.result != 'failure' && (needs.build-lilu.result == 'success' || needs.build-wifi.result == 'success' || needs.build-bt.result == 'success' || needs.build-alc.result == 'success' || needs.build-yogasmc.result == 'success' || needs.download-prebuilt.result == 'success' || needs.check-opencore.outputs.opencore_updated == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v5
 
@@ -278,6 +285,7 @@ jobs:
 
       - name: Download kext artifacts
         uses: actions/download-artifact@v5
+        continue-on-error: true
         with:
           pattern: '{airportitlwm,intelbt,applealc,yogasmc,prebuilt}'
           path: all-artifacts
@@ -292,9 +300,14 @@ jobs:
       - name: Organize kexts
         run: |
           mkdir -p release/Kexts
-          find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
+          [ -d all-artifacts ] && find all-artifacts -name "*.kext" -maxdepth 3 -exec cp -r {} release/Kexts/ \;
           # Copy custom USBMap.kext (Tahoe+ version, without dock scenario)
           cp -r "USB定制/Tahoe+/不接雷电扩展坞/MacBookPro16,1/USBMap.kext" release/Kexts/ 2>/dev/null || true
+          # Fallback: if no new kext artifacts (OC-only update), copy existing kexts from repo
+          if [ -z "$(ls -A release/Kexts/ 2>/dev/null)" ] && [ -d "EFI/OC/Kexts" ]; then
+            echo "No kext artifacts found, copying existing kexts from repo as fallback"
+            cp -r EFI/OC/Kexts/*.kext release/Kexts/ 2>/dev/null || true
+          fi
           ls -la release/Kexts/
 
       - name: Assemble EFI

@@ -55,9 +55,34 @@ def download_file(url, dest):
     if token:
         headers["Authorization"] = f"token {token}"
     req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=300) as resp:
-        with open(dest, "wb") as f:
-            shutil.copyfileobj(resp, f)
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                with open(dest, "wb") as f:
+                    shutil.copyfileobj(resp, f)
+            return
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 503) and attempt < 2:
+                wait = 2 ** (attempt + 1)
+                try:
+                    wait = int(e.headers.get("Retry-After", wait))
+                except (ValueError, TypeError):
+                    pass
+                print(f"  HTTP {e.code}, retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            if os.path.exists(dest):
+                os.remove(dest)
+            raise
+        except urllib.error.URLError as e:
+            if attempt < 2:
+                wait = 2 ** (attempt + 1)
+                print(f"  Network error ({e.reason}), retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            if os.path.exists(dest):
+                os.remove(dest)
+            raise
 
 
 def download_extra_drivers(extra_drivers, drivers_dir):
@@ -467,7 +492,7 @@ def main():
     # Output
     output_path = os.environ.get("GITHUB_OUTPUT", "/tmp/opencore-output.txt")
     with open(output_path, "a") as f:
-        f.write("opencore_updated=true\n")
+        f.write(f"opencore_updated={'true' if is_update else 'false'}\n")
         f.write(f"opencore_version={latest_version}\n")
 
     print(f"\nOpenCore {latest_version} ready for assembly.")

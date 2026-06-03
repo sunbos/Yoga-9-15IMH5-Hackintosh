@@ -83,9 +83,9 @@ def main():
     clean_cache(source_dir)
     build(source_dir, build_target)
 
-    kext_path = os.path.join(source_dir, "build", "Release", "Ventura", "AirportItlwm.kext")
-    if not os.path.exists(kext_path):
-        kext_path = os.path.join(source_dir, "build", "Release", build_target, "AirportItlwm.kext")
+    # Extract OS name from build target (e.g. "AirportItlwm-Ventura" -> "Ventura")
+    os_name = build_target.replace("AirportItlwm-", "") if build_target.startswith("AirportItlwm-") else build_target
+    kext_path = os.path.join(source_dir, "build", "Release", os_name, "AirportItlwm.kext")
     if not os.path.exists(kext_path):
         for root, dirs, files in os.walk(os.path.join(source_dir, "build")):
             if "AirportItlwm.kext" in dirs:
