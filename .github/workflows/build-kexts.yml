@@ -44,7 +44,7 @@ jobs:
         run: python3 scripts/check-updates.py
 
       - name: Upload current SHA
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: current-sha
           path: /tmp/current-sha.json
@@ -65,13 +65,13 @@ jobs:
           cp -R build/Debug/Lilu.kext /tmp/lilu-sdk/
 
       - name: Upload Lilu SDK
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: lilu-sdk
           path: /tmp/lilu-sdk/
 
       - name: Upload MacKernelSDK
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: mackernelsdk
           path: MacKernelSDK
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download MacKernelSDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: mackernelsdk
           path: /tmp/mackernelsdk
@@ -101,7 +101,7 @@ jobs:
         run: python3 scripts/minimize-airportitlwm.py
 
       - name: Upload AirportItlwm
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: airportitlwm
           path: build-output/
@@ -114,13 +114,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download Lilu SDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
       - name: Download MacKernelSDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: mackernelsdk
           path: /tmp/mackernelsdk
@@ -139,7 +139,7 @@ jobs:
         run: python3 scripts/minimize-intelbt.py
 
       - name: Upload IntelBT
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: intelbt
           path: build-output/
@@ -152,13 +152,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download Lilu SDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
       - name: Download MacKernelSDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: mackernelsdk
           path: /tmp/mackernelsdk
@@ -177,7 +177,7 @@ jobs:
         run: python3 scripts/minimize-applealc.py
 
       - name: Upload AppleALC
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: applealc
           path: build-output/
@@ -190,13 +190,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download Lilu SDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: lilu-sdk
           path: /tmp/lilu-sdk
 
       - name: Download MacKernelSDK
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: mackernelsdk
           path: /tmp/mackernelsdk
@@ -221,7 +221,7 @@ jobs:
         run: python3 scripts/minimize-yogasmc.py
 
       - name: Upload YogaSMC
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: yogasmc
           path: build-output/
@@ -239,7 +239,7 @@ jobs:
         run: python3 scripts/download-prebuilt.py
 
       - name: Upload prebuilt
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: prebuilt
           path: build-output/
@@ -261,7 +261,7 @@ jobs:
         run: python3 scripts/check-opencore.py
 
       - name: Upload OpenCore artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: steps.check.outputs.opencore_updated == 'true'
         with:
           name: opencore
@@ -284,14 +284,14 @@ jobs:
           echo "time=$(TZ=Asia/Shanghai date +%H%M)" >> "$GITHUB_OUTPUT"
 
       - name: Download kext artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           pattern: '{airportitlwm,intelbt,applealc,yogasmc,prebuilt}'
           path: all-artifacts
 
       - name: Download OpenCore artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         if: needs.check-opencore.outputs.opencore_updated == 'true'
         with:
           name: opencore
@@ -381,7 +381,7 @@ jobs:
           fi
 
       - name: Update last-build-sha.json
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: current-sha
           path: /tmp/
@@ -417,11 +417,8 @@ jobs:
             - AppleALC: minimized (codec=ALC298, layout=98, custom layout98 injected)
             - YogaSMC: built from upstream master (v2.0.0)
 
-            **Nightly Build ([ClayMoreBoy/Hackintosh-Kext-Factory](https://github.com/ClayMoreBoy/Hackintosh-Kext-Factory)):**
-            - WhateverGreen, VirtualSMC, RestrictEvents, NVMeFix, VoodooPS2
-
             **Official Release:**
-            - Lilu, VoodooI2C, BlueToolFixup, ECEnabler
+            - Lilu, VoodooI2C, BlueToolFixup, ECEnabler, WhateverGreen, VirtualSMC, RestrictEvents, NVMeFix, VoodooPS2
 
             **OCLP ([dortania/OpenCore-Legacy-Patcher](https://github.com/dortania/OpenCore-Legacy-Patcher)):**
             - AMFIPass, IO80211FamilyLegacy, IOSkywalkFamily
